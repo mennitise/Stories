@@ -22,13 +22,8 @@ public class Splash extends AppCompatActivity {
         new Handler().postDelayed(new Runnable(){
             Boolean currentUser = true;
             public void run(){
-                if (currentUser == null) {
-                    startActivity(new Intent(Splash.this, Login.class));
+                    startActivity(new Intent(Splash.this, MainActivity.class));
                     finish();
-                } else {
-                    //startActivity(new Intent(SplashActivity.this, MainActivity.class));
-                    finish();
-                }
             };
         }, DURATION_SPLASH);
     }
