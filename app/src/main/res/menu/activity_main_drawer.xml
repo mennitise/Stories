@@ -35,4 +35,13 @@
         </menu>
     </item>
 
+    <item android:title="Communicate">
+        <menu>
+            <item
+                android:id="@+id/nav_logout"
+                android:icon="@drawable/ic_menu_send"
+                android:title="Share" />
+        </menu>
+    </item>
+
 </menu>

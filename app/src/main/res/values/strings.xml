@@ -33,4 +33,6 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
     <string name="logout">Log out</string>
+    <string name="title_perfil">Perfil</string>
+    <string name="title_activity_test_navigation">TestNavigationActivity</string>
 </resources>

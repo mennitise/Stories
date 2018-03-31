@@ -12,6 +12,14 @@
         android:paddingLeft="0dp"
         android:paddingRight="0dp"
         android:scaleType="fitXY"
-        android:src="@drawable/stories_splash" />
+        android:src="@drawable/stories_splash"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="50dp"
+        android:paddingRight="50dp"
+        android:paddingTop="125dp"
+        android:src="@drawable/stories_write"/>
 
 </RelativeLayout>
