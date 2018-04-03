@@ -10,3 +10,8 @@ android:
     # Override the install and test so that we don't run integration tests
 install:
   - ./gradlew assemble
+
+licenses:
+    - 'android-sdk-preview-license-.+'
+    - 'android-sdk-license-.+'
+    - 'google-gdk-license-.+'
