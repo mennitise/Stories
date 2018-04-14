@@ -65,7 +65,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setNavigationHeader() {
-        MainActivity.this.nav_header_name.setText(this.app.userLoggedIn.firstName+" "+this.app.userLoggedIn.lastName);
+        if(this.app.userLoggedIn != null){
+            MainActivity.this.nav_header_name.setText(this.app.userLoggedIn.firstName+" "+this.app.userLoggedIn.lastName);
+        }
     }
 
     private void goLoginScreen() {
@@ -76,6 +78,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void logout() {
+        ((StoriesApp) getApplicationContext()).userLoggedIn = null;
         LoginManager.getInstance().logOut();
         goLoginScreen();
     }

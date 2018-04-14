@@ -4,9 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.Signature;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -22,7 +20,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
-import android.util.Base64;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -33,27 +30,22 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
-import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
+import com.fiuba.stories.stories.utils.AppServerRequest;
+import com.fiuba.stories.stories.utils.HttpCallback;
+import com.fiuba.stories.stories.utils.ResponseObject;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
-import org.json.JSONObject;
-
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
-public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+/**
+ * A login screen that offers login via email/password.
+ */
+public class RegisterActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
     /**
      * Id to identity READ_CONTACTS permission request.
@@ -71,126 +63,60 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
-    private LoginButton loginButton;
-    private CallbackManager callbackManager;
 
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
+    private EditText mFirstNameView;
+    private EditText mLastNameView;
+    private EditText mBirthdayView;
     private View mProgressView;
     private View mLoginFormView;
-
-    PackageInfo info;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.login);
+        setContentView(R.layout.activity_register);
 
-        // Set up the login form.
+        // Set up the register form.
+        //firstName
+        mFirstNameView = (EditText) findViewById(R.id.firstName);
+
+        //lastName
+        mLastNameView = (EditText) findViewById(R.id.lastName);
+
+        //birthday
+        mBirthdayView = (EditText) findViewById(R.id.birthday);
+
+        //email
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
 
-        /** For the Facebook Login */
-        try {
-            info = getPackageManager().getPackageInfo("com.fiuba.stories.stories", PackageManager.GET_SIGNATURES);
-            for (Signature signature : info.signatures) {
-                MessageDigest md = MessageDigest.getInstance("SHA");
-                md.update(signature.toByteArray());
-                Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
-            }
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.e("Name Not found", e.toString());
-        } catch (NoSuchAlgorithmException e) {
-            Log.e("No such algorithm", e.toString());
-        }
-        callbackManager = CallbackManager.Factory.create();
-        loginButton = (LoginButton) findViewById(R.id.loginButton);
-
-        loginButton.setReadPermissions(Arrays.asList(
-                "public_profile",
-                "email",
-                "user_birthday",
-                "user_friends"
-        ));
-        loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-
-                GraphRequest request = GraphRequest.newMeRequest(
-                        loginResult.getAccessToken(),
-                        new GraphRequest.GraphJSONObjectCallback() {
-                            @Override
-                            public void onCompleted(JSONObject object, GraphResponse response) {
-                                ((StoriesApp) getApplicationContext()).userLoggedIn = new User("Sebastian","Menniti","","");
-                                goMainScreen();
-                            }
-                        });
-                Bundle parameters = new Bundle();
-                parameters.putString("fields", "id,name,email,gender,birthday,first_name,last_name,link,cover,picture.type(large)");
-                request.setParameters(parameters);
-                request.executeAsync();
-            }
-
-            @Override
-            public void onCancel() {
-                Toast.makeText(getApplicationContext(), R.string.cancel_login, Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onError(FacebookException error) {
-                Toast.makeText(getApplicationContext(), R.string.error_login, Toast.LENGTH_SHORT).show();
-            }
-        });
-
+        //password
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
+                    attemptRegister();
                     return true;
                 }
                 return false;
             }
         });
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        Button regiterButton = (Button) findViewById(R.id.register_button);
 
+        Button mEmailSignInButton = (Button) findViewById(R.id.send_register_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                attemptLogin();
-            }
-        });
-        regiterButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                goRegisterScreen();
+                attemptRegister();
             }
         });
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
-    }
 
-    private void goMainScreen() {
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-    }
-
-    private void goRegisterScreen() {
-        Intent intent = new Intent(this, RegisterActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        super.onActivityResult(requestCode, resultCode, data);
-        callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
     private void populateAutoComplete() {
@@ -238,25 +164,54 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
 
 
     /**
-     * Attempts to sign in or register the account specified by the login form.
+     * Attempts to register the account specified by the register form.
      * If there are form errors (invalid email, missing fields, etc.), the
-     * errors are presented and no actual login attempt is made.
+     * errors are presented and no actual regiter attempt is made.
      */
-    private void attemptLogin() {
-        if (mAuthTask != null) {
-            return;
-        }
-
+    private void attemptRegister() {
         // Reset errors.
         mEmailView.setError(null);
         mPasswordView.setError(null);
+        mFirstNameView.setError(null);
+        mLastNameView.setError(null);
+        mBirthdayView.setError(null);
 
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
+        String firstName = mFirstNameView.getText().toString();
+        String lastName = mLastNameView.getText().toString();
+        String birthday = mBirthdayView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
+
+        // Check empty Strings
+        if(TextUtils.isEmpty(password)) {
+            mPasswordView.setError(getString(R.string.error_field_required));
+            focusView = mPasswordView;
+            cancel = true;
+        }
+        if(TextUtils.isEmpty(email)) {
+            mEmailView.setError(getString(R.string.error_field_required));
+            focusView = mEmailView;
+            cancel = true;
+        }
+        if(TextUtils.isEmpty(birthday)) {
+            mBirthdayView.setError(getString(R.string.error_field_required));
+            focusView = mBirthdayView;
+            cancel = true;
+        }
+        if(TextUtils.isEmpty(lastName)) {
+            mLastNameView.setError(getString(R.string.error_field_required));
+            focusView = mLastNameView;
+            cancel = true;
+        }
+        if(TextUtils.isEmpty(firstName)) {
+            mFirstNameView.setError(getString(R.string.error_field_required));
+            focusView = mFirstNameView;
+            cancel = true;
+        }
 
         // Check for a valid password, if the user entered one.
         if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
@@ -266,11 +221,7 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
         }
 
         // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
-            cancel = true;
-        } else if (!isEmailValid(email)) {
+        if (!TextUtils.isEmpty(email) && !isEmailValid(email)) {
             mEmailView.setError(getString(R.string.error_invalid_email));
             focusView = mEmailView;
             cancel = true;
@@ -284,9 +235,18 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
+
+            User.registerUser(firstName, lastName, email, birthday, password);
+            AppServerRequest.sendTestRequest("firstName="+firstName+"&lastName="+lastName+"&email="+email+"&birthday="+birthday+"&password="+password, new CallbackRequest());
             mAuthTask = new UserLoginTask(email, password);
             mAuthTask.execute((Void) null);
         }
+    }
+
+    private void goMainScreen() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 
     private boolean isEmailValid(String email) {
@@ -372,7 +332,7 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
     private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
         //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
         ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(Login.this,
+                new ArrayAdapter<>(RegisterActivity.this,
                         android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
 
         mEmailView.setAdapter(adapter);
@@ -445,5 +405,40 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
             showProgress(false);
         }
     }
+
+    // ----------------------------------------------------------------
+    // -----------------------API Calls--------------------------------
+    // ----------------------------------------------------------------
+
+
+    class CallbackRequest extends HttpCallback {
+
+        User user;
+
+        @Override
+        public void onResponse() {
+            try {
+                JsonObject objJson = new JsonParser().parse(getJSONObject("args").toString()).getAsJsonObject();
+                user = User.hydrate(objJson);
+                ((StoriesApp) getApplicationContext()).userLoggedIn =user;
+                RegisterActivity.this.runOnUiThread(new RegisterActivity.CallbackRequest.SetResults());
+            } catch (Exception e) {
+                Log.e("TEST REQUEST CALLBACK", "Error");
+                e.printStackTrace();
+            }
+            RegisterActivity.this.runOnUiThread(new RegisterActivity.CallbackRequest.SetResults());
+        }
+
+        class SetResults implements Runnable {
+            @Override
+            public void run() {
+                String text = String.format("Name = %s\neMail = %s",user.getName(), user.getEmail());
+                Log.d("Response", text);
+                goMainScreen();
+            }
+        }
+    }
+
+    // ----------------------------------------------------------------
 }
 

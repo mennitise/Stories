@@ -74,8 +74,6 @@ public class Splash extends AppCompatActivity {
             public void run() {
                 String text = String.format("Value A = %s\nValue B = %s",resp.getValueA(), resp.getValueB());
                 Log.e("Response", text);
-
-                //Login.this.response.setText(text);
             }
         }
     }
