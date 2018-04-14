@@ -19,7 +19,15 @@
         android:layout_height="match_parent"
         android:paddingLeft="50dp"
         android:paddingRight="50dp"
-        android:paddingTop="125dp"
+        android:paddingTop="100dp"
         android:src="@drawable/stories_write"/>
+
+    <pl.droidsonroids.gif.GifImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/loading"
+        android:paddingLeft="130dp"
+        android:paddingRight="130dp"
+        android:paddingTop="375dp"/>
 
 </RelativeLayout>
