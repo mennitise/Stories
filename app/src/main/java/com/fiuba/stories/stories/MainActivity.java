@@ -4,7 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -14,10 +17,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.facebook.AccessToken;
 import com.facebook.login.LoginManager;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -27,11 +35,17 @@ public class MainActivity extends AppCompatActivity
     TextView nav_header_name;
     TextView nav_header_email;
 
+    private RecyclerView mRecyclerView;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         this.app = (StoriesApp) getApplicationContext();
+        mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
+
 
         if(this.app.userLoggedIn == null) {
             goLoginScreen();
@@ -62,12 +76,24 @@ public class MainActivity extends AppCompatActivity
         nav_header_name = navigationView.getHeaderView(0).findViewById(R.id.nav_header_name);
         nav_header_email = navigationView.getHeaderView(0).findViewById(R.id.nav_header_email);
         setNavigationHeader();
+
+        setMainContent();
     }
 
     private void setNavigationHeader() {
         if(this.app.userLoggedIn != null){
             MainActivity.this.nav_header_name.setText(this.app.userLoggedIn.firstName+" "+this.app.userLoggedIn.lastName);
         }
+    }
+
+    private void setMainContent(){
+        ArrayList<Post> posts = Post.getHistoryPosts(app.userLoggedIn);
+        RecyclerView container = (RecyclerView) findViewById(R.id.my_recycler_view);
+        container.setHasFixedSize(true);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this.app);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        container.setAdapter(new MyAdaptor(posts));
+        container.setLayoutManager(layoutManager);
     }
 
     private void goLoginScreen() {
