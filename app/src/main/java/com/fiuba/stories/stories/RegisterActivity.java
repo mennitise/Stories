@@ -5,6 +5,8 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -30,6 +32,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.fiuba.stories.stories.utils.AppServerRequest;
 import com.fiuba.stories.stories.utils.HttpCallback;
@@ -236,8 +239,9 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
             // perform the user login attempt.
             showProgress(true);
 
-            User.registerUser(firstName, lastName, email, birthday, password);
-            AppServerRequest.sendTestRequest("firstName="+firstName+"&lastName="+lastName+"&email="+email+"&birthday="+birthday+"&password="+password, new CallbackRequest());
+            User.registerUser(firstName, lastName, email, birthday, password, new CallbackRequest());
+
+
             mAuthTask = new UserLoginTask(email, password);
             mAuthTask.execute((Void) null);
         }
@@ -248,6 +252,14 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
     }
+
+    private void goLoginScreen(){
+        Intent intent = new Intent(this, Login.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish();
+    }
+
 
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
@@ -406,6 +418,10 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         }
     }
 
+    private void toastError(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
     // ----------------------------------------------------------------
     // -----------------------API Calls--------------------------------
     // ----------------------------------------------------------------
@@ -413,14 +429,43 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
 
     class CallbackRequest extends HttpCallback {
 
-        User user;
+        String response;
 
         @Override
         public void onResponse() {
             try {
-                JsonObject objJson = new JsonParser().parse(getJSONObject("args").toString()).getAsJsonObject();
-                user = User.hydrate(objJson);
-                ((StoriesApp) getApplicationContext()).userLoggedIn =user;
+                Log.d("HTTP RESPONSE: ", getHTTPResponse().toString());
+                Log.d("HTTP RESPONSE: ", "code = " + getHTTPResponse().code());
+                if (getHTTPResponse().code() == 200) {
+                    Log.d("RESPONSE: ", getJSONResponse().toString());
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getBaseContext(), "The user has successfully registered. Now login.", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                    goLoginScreen();
+                } else if (getHTTPResponse().code() == 401){
+                    // The user is already registered
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getBaseContext(), "The user is already registered.", Toast.LENGTH_LONG).show();
+                        }
+                    });
+
+                } else if (getHTTPResponse().code() == 400){
+                    // The registration fails
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getBaseContext(), "The registration has failed.", Toast.LENGTH_LONG).show();
+                        }
+                    });
+
+                }
+
+                //user = User.hydrate(objJson);
                 RegisterActivity.this.runOnUiThread(new RegisterActivity.CallbackRequest.SetResults());
             } catch (Exception e) {
                 Log.e("TEST REQUEST CALLBACK", "Error");
@@ -432,8 +477,9 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         class SetResults implements Runnable {
             @Override
             public void run() {
-                String text = String.format("Name = %s\neMail = %s",user.getName(), user.getEmail());
+                String text = String.format("RESPONSE:", response);
                 Log.d("Response", text);
+
                 goMainScreen();
             }
         }

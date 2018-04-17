@@ -8,6 +8,8 @@ public class ResponseObject {
 
     @SerializedName("a") String valueA;
     @SerializedName("b") String valueB;
+    //@SerializedName("b") String valueB;
+
 
 
     public static ResponseObject hydrate(JsonObject json) {

@@ -32,7 +32,7 @@ public class Splash extends AppCompatActivity {
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_splash);
 
-        AppServerRequest.sendTestRequest("a=1&b=2", new CallbackRequest());
+        //AppServerRequest.sendTestRequest("a=1&b=2", new CallbackRequest());
 
         this.app = (StoriesApp) getApplicationContext();
 
@@ -50,6 +50,10 @@ public class Splash extends AppCompatActivity {
             };
         }, DURATION_SPLASH);
     }
+
+    // ---------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
 
     class CallbackRequest extends HttpCallback {
 
@@ -78,4 +82,5 @@ public class Splash extends AppCompatActivity {
         }
     }
 
+    // ---------------------------------------------------------------------------------------------
 }

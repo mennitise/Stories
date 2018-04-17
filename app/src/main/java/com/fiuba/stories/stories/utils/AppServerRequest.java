@@ -16,9 +16,9 @@ import okhttp3.RequestBody;
 
 public class AppServerRequest {
 
-    private static final String BASE_URL = "https://httpbin.org/";
+    private static final String BASE_URL = "https://radiant-gorge-17084.herokuapp.com";
     private static final OkHttpClient client = new OkHttpClient();
-    private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+    public static final MediaType JSON = MediaType.parse("application/json");
 
     public static void sendTestRequest(Map<String,String> params, Callback callback) {
         String route = BASE_URL + "get?";
@@ -36,6 +36,12 @@ public class AppServerRequest {
         get(route, callback);
     }
 
+    public static void sendSignUpUser(String params, Callback callback, RequestBody request) {
+        String route = BASE_URL + "/api/users/signup";
+        Log.d("REQUEST URL: ", route);
+        Log.d("REQUEST: ", request.toString());
+        put(route, callback, request);
+    }
 
     public static void get(String url, Callback callback) {
         Request request = new Request.Builder()

@@ -25,9 +25,9 @@
     <pl.droidsonroids.gif.GifImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/loading"
-        android:paddingLeft="130dp"
-        android:paddingRight="130dp"
-        android:paddingTop="375dp"/>
+        android:src="@drawable/loading_3"
+        android:paddingLeft="170dp"
+        android:paddingRight="170dp"
+        android:paddingTop="400dp"/>
 
 </RelativeLayout>

@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -35,6 +37,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -42,6 +45,7 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.fiuba.stories.stories.utils.HttpCallback;
 
 import org.json.JSONObject;
 
@@ -81,11 +85,14 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
     private View mLoginFormView;
 
     PackageInfo info;
+    StoriesApp app;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
+
+        this.app = (StoriesApp) getApplicationContext();
 
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
@@ -114,14 +121,21 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                 "user_friends"
         ));
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            String fbToken;
+
             @Override
             public void onSuccess(LoginResult loginResult) {
-
+                this.fbToken = loginResult.getAccessToken().getToken();
+                Log.d("TOKEN 1: ", fbToken);
+                //User.registerFacebookUser();
                 GraphRequest request = GraphRequest.newMeRequest(
                         loginResult.getAccessToken(),
                         new GraphRequest.GraphJSONObjectCallback() {
                             @Override
                             public void onCompleted(JSONObject object, GraphResponse response) {
+                                //response.
+                                Log.d("TOKEN 2: ", AccessToken.getCurrentAccessToken().getToken());
+                                Log.d("USER FB:", response.toString());
                                 ((StoriesApp) getApplicationContext()).userLoggedIn = new User("Sebastian","Menniti","","");
                                 goMainScreen();
                             }
@@ -161,7 +175,9 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                attemptLogin();
+                String email = mEmailView.getText().toString();
+                String password = mPasswordView.getText().toString();
+                loginUser(email, password);
             }
         });
         regiterButton.setOnClickListener(new OnClickListener() {
@@ -185,6 +201,10 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
         Intent intent = new Intent(this, RegisterActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
+    }
+
+    private void loginUser(String email, String password){
+        User.loginUser(email, password, new CallbackRequest());
     }
 
     @Override
@@ -445,5 +465,72 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
             showProgress(false);
         }
     }
+
+    // ----------------------------------------------------------------
+    // -----------------------API Calls--------------------------------
+    // ----------------------------------------------------------------
+
+    class CallbackRequest extends HttpCallback {
+
+        String response;
+
+        @Override
+        public void onResponse() {
+            try {
+                Log.d("HTTP RESPONSE: ", getHTTPResponse().toString());
+                Log.d("HTTP RESPONSE: ", "code = " + getHTTPResponse().code());
+                if (getHTTPResponse().code() == 200) {
+                    Log.d("RESPONSE: ", getJSONResponse().toString());
+                    // TODO: Get User Information
+                    app.userLoggedIn = new User("Name", "Last Name",mEmailView.getText().toString(),"");
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getBaseContext(), "Login Successful.", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                    goMainScreen();
+                } else if (getHTTPResponse().code() == 401){
+                    // The user is already registered
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getBaseContext(), "The email or password you entered is not valid. Please try again.", Toast.LENGTH_LONG).show();
+                        }
+                    });
+
+                } else if (getHTTPResponse().code() == 400){
+                    // The log in fails
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getBaseContext(), "Error at log in.", Toast.LENGTH_LONG).show();
+                        }
+                    });
+
+                }
+
+                //user = User.hydrate(objJson);
+                Login.this.runOnUiThread(new Login.CallbackRequest.SetResults());
+            } catch (Exception e) {
+                Log.e("TEST REQUEST CALLBACK", "Error");
+                e.printStackTrace();
+            }
+            Login.this.runOnUiThread(new Login.CallbackRequest.SetResults());
+        }
+
+        class SetResults implements Runnable {
+            @Override
+            public void run() {
+                String text = String.format("RESPONSE:", response);
+                Log.d("Response", text);
+
+                goMainScreen();
+            }
+        }
+    }
+
+    // ----------------------------------------------------------------
+
 }
 
