@@ -8,7 +8,7 @@ import com.facebook.appevents.AppEventsLogger;
 
 public class StoriesApp extends Application{
 
-    protected User userLoggedIn;
+    public User userLoggedIn;
 
     @Override
     public void onCreate(){

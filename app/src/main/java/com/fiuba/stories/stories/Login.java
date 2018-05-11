@@ -45,7 +45,10 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.fiuba.stories.stories.utils.AppServerRequest;
 import com.fiuba.stories.stories.utils.HttpCallback;
+import com.fiuba.stories.stories.utils.UtilCallbacks;
+import com.google.gson.JsonObject;
 
 import org.json.JSONObject;
 
@@ -126,15 +129,14 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
             @Override
             public void onSuccess(LoginResult loginResult) {
                 this.fbToken = loginResult.getAccessToken().getToken();
-                Log.d("TOKEN 1: ", fbToken);
                 //User.registerFacebookUser();
+                Log.d("FB RESULT: ",loginResult.toString());
                 GraphRequest request = GraphRequest.newMeRequest(
                         loginResult.getAccessToken(),
                         new GraphRequest.GraphJSONObjectCallback() {
                             @Override
                             public void onCompleted(JSONObject object, GraphResponse response) {
                                 //response.
-                                Log.d("TOKEN 2: ", AccessToken.getCurrentAccessToken().getToken());
                                 Log.d("USER FB:", response.toString());
                                 ((StoriesApp) getApplicationContext()).userLoggedIn = new User("Sebastian","Menniti","","");
                                 goMainScreen();
@@ -191,7 +193,7 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
         mProgressView = findViewById(R.id.login_progress);
     }
 
-    private void goMainScreen() {
+    public void goMainScreen() {
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
@@ -204,7 +206,31 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
     }
 
     private void loginUser(String email, String password){
-        User.loginUser(email, password, new CallbackRequest());
+        Runnable runner200 = new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getBaseContext(), "Login Successful.", Toast.LENGTH_LONG).show();
+            }
+        };
+        Runnable runner401 = new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getBaseContext(), "The email or password you entered is not valid. Please try again.", Toast.LENGTH_LONG).show();
+            }
+        };
+        Runnable runner400 = new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getBaseContext(), "The login fails. Please try again.", Toast.LENGTH_LONG).show();
+            }
+        };
+        UtilCallbacks util = new UtilCallbacks();
+        Log.d("DEbUG", "AppServerRequest.loginUser");
+        AppServerRequest.loginUser( email,
+                                    password,
+                                    util.getCallbackRequestLogin(mEmailView.getText().toString(),this.app, this, MainActivity.class, runner200, runner401, runner400)
+        );
+        //StoriesApp app, Login loginActivity, Class<MainActivity> mainActivityClass, Runnable runnner
     }
 
     @Override
@@ -465,72 +491,4 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
             showProgress(false);
         }
     }
-
-    // ----------------------------------------------------------------
-    // -----------------------API Calls--------------------------------
-    // ----------------------------------------------------------------
-
-    class CallbackRequest extends HttpCallback {
-
-        String response;
-
-        @Override
-        public void onResponse() {
-            try {
-                Log.d("HTTP RESPONSE: ", getHTTPResponse().toString());
-                Log.d("HTTP RESPONSE: ", "code = " + getHTTPResponse().code());
-                if (getHTTPResponse().code() == 200) {
-                    Log.d("RESPONSE: ", getJSONResponse().toString());
-                    // TODO: Get User Information
-                    app.userLoggedIn = new User("Name", "Last Name",mEmailView.getText().toString(),"");
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getBaseContext(), "Login Successful.", Toast.LENGTH_LONG).show();
-                        }
-                    });
-                    goMainScreen();
-                } else if (getHTTPResponse().code() == 401){
-                    // The user is already registered
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getBaseContext(), "The email or password you entered is not valid. Please try again.", Toast.LENGTH_LONG).show();
-                        }
-                    });
-
-                } else if (getHTTPResponse().code() == 400){
-                    // The log in fails
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getBaseContext(), "Error at log in.", Toast.LENGTH_LONG).show();
-                        }
-                    });
-
-                }
-
-                //user = User.hydrate(objJson);
-                Login.this.runOnUiThread(new Login.CallbackRequest.SetResults());
-            } catch (Exception e) {
-                Log.e("TEST REQUEST CALLBACK", "Error");
-                e.printStackTrace();
-            }
-            Login.this.runOnUiThread(new Login.CallbackRequest.SetResults());
-        }
-
-        class SetResults implements Runnable {
-            @Override
-            public void run() {
-                String text = String.format("RESPONSE:", response);
-                Log.d("Response", text);
-
-                goMainScreen();
-            }
-        }
-    }
-
-    // ----------------------------------------------------------------
-
 }
-

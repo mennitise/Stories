@@ -40,8 +40,12 @@ import com.fiuba.stories.stories.utils.ResponseObject;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
+import com.fiuba.stories.stories.utils.*;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -67,6 +71,9 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
      */
     private UserLoginTask mAuthTask = null;
 
+    private StoriesApp app;
+    private String token;
+
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
@@ -80,6 +87,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        this.app = (StoriesApp) getApplicationContext();
 
         // Set up the register form.
         //firstName
@@ -239,21 +247,20 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
             // perform the user login attempt.
             showProgress(true);
 
-            User.registerUser(firstName, lastName, email, birthday, password, new CallbackRequest());
-
+            AppServerRequest.registerUser(firstName, lastName, email, birthday, "99", "male",password, new UtilCallbacks.CallbackRequestRegister(this, MainActivity.class));
 
             mAuthTask = new UserLoginTask(email, password);
             mAuthTask.execute((Void) null);
         }
     }
 
-    private void goMainScreen() {
+    public void goMainScreen() {
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
     }
 
-    private void goLoginScreen(){
+    public void goLoginScreen(){
         Intent intent = new Intent(this, Login.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
@@ -418,73 +425,9 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         }
     }
 
-    private void toastError(String message) {
+    public void toastMessage(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
-    // ----------------------------------------------------------------
-    // -----------------------API Calls--------------------------------
-    // ----------------------------------------------------------------
-
-
-    class CallbackRequest extends HttpCallback {
-
-        String response;
-
-        @Override
-        public void onResponse() {
-            try {
-                Log.d("HTTP RESPONSE: ", getHTTPResponse().toString());
-                Log.d("HTTP RESPONSE: ", "code = " + getHTTPResponse().code());
-                if (getHTTPResponse().code() == 200) {
-                    Log.d("RESPONSE: ", getJSONResponse().toString());
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getBaseContext(), "The user has successfully registered. Now login.", Toast.LENGTH_LONG).show();
-                        }
-                    });
-                    goLoginScreen();
-                } else if (getHTTPResponse().code() == 401){
-                    // The user is already registered
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getBaseContext(), "The user is already registered.", Toast.LENGTH_LONG).show();
-                        }
-                    });
-
-                } else if (getHTTPResponse().code() == 400){
-                    // The registration fails
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getBaseContext(), "The registration has failed.", Toast.LENGTH_LONG).show();
-                        }
-                    });
-
-                }
-
-                //user = User.hydrate(objJson);
-                RegisterActivity.this.runOnUiThread(new RegisterActivity.CallbackRequest.SetResults());
-            } catch (Exception e) {
-                Log.e("TEST REQUEST CALLBACK", "Error");
-                e.printStackTrace();
-            }
-            RegisterActivity.this.runOnUiThread(new RegisterActivity.CallbackRequest.SetResults());
-        }
-
-        class SetResults implements Runnable {
-            @Override
-            public void run() {
-                String text = String.format("RESPONSE:", response);
-                Log.d("Response", text);
-
-                goMainScreen();
-            }
-        }
-    }
-
-    // ----------------------------------------------------------------
 }
 

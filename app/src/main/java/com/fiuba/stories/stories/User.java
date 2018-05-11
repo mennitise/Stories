@@ -1,15 +1,27 @@
 package com.fiuba.stories.stories;
 
+import android.support.annotation.NonNull;
+import android.util.Log;
+
 import com.fiuba.stories.stories.utils.AppServerRequest;
 import com.fiuba.stories.stories.utils.ResponseObject;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
+import java.util.Set;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.Credentials;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.Response;
@@ -19,6 +31,7 @@ public class User {
     @SerializedName("lastName") protected String lastName;
     @SerializedName("email")protected String email;
     @SerializedName("birthday")protected String birthday;
+    protected Boolean fbUser;
     protected String token;
     protected String fbToken;
     protected String urlProfilePicture;
@@ -30,32 +43,55 @@ public class User {
         this.urlProfilePicture = urlProfilePicture;
     }
 
+    public User(){
+
+    }
+
     public static User hydrate(JsonObject json) {
         return new Gson().fromJson(json, User.class);
     }
 
-    public static void loginUser(String email, String password, Callback callback){
-        String json = "{\"username\": \"" + email + "\", \"password\": \"" + password + "\"}";
-        RequestBody request = RequestBody.create(AppServerRequest.JSON, json);
-        AppServerRequest.post("https://radiant-gorge-17084.herokuapp.com/api/users/login", callback, request);
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
-    public static void registerUser(String firstName, String lastName, String email, String birthday, String password, Callback callback) {
-        String json = "{\"username\": \"" + email + "\", \"password\": \"" + password + "\"}";
-        RequestBody request = RequestBody.create(AppServerRequest.JSON, json);
-        AppServerRequest.post("https://radiant-gorge-17084.herokuapp.com/api/users/signup", callback, request);
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
-    public static void registerFacebookUser(String firstName, String lastName, String email, String birthday, String fbToken, Callback callback) {
-        String json = "{\"username\": \"" + email + "\", \"fbToken\": \"" + fbToken + "\"}";
-        RequestBody request = RequestBody.create(AppServerRequest.JSON, json);
-        AppServerRequest.post("https://radiant-gorge-17084.herokuapp.com/api/users/signup", callback, request);
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setBirthday(String birthday) {
+        this.birthday = birthday;
     }
 
     public String getName(){
         return firstName+" "+lastName;
     }
+
     public String getEmail(){
         return email;
     }
+
+    public void setCurrentToken(String token, Boolean fbUser){
+        if (fbUser) {
+            this.fbToken = token;
+        } else {
+            this.token = token;
+        }
+    }
+
+    // FOR DEBUGGING
+    public void LOG_USER(){
+        Log.d("USER: ", "FIRST NAME: " + this.firstName + "\n"
+                                + "LAST NAME: " + this.lastName + "\n"
+                                + "EMAIL: " + this.email + "\n"
+                                + "BIRTHDAY: " + this.birthday + "\n"
+                                + "TOKEN: " + this.token + "\n"
+                                + "FB_TOKEN: " + this.fbToken + "\n"
+                                + "FB_USER: " + this.fbUser);
+    }
+
 }

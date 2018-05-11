@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.login.LoginManager;
@@ -76,8 +77,7 @@ public class MainActivity extends AppCompatActivity
         nav_header_name = navigationView.getHeaderView(0).findViewById(R.id.nav_header_name);
         nav_header_email = navigationView.getHeaderView(0).findViewById(R.id.nav_header_email);
         setNavigationHeader();
-
-        setMainContent();
+        setNowMainContent();
     }
 
     private void setNavigationHeader() {
@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void setMainContent(){
+    private void setNowMainContent(){
         ArrayList<Post> posts = Post.getHistoryPosts(app.userLoggedIn);
         RecyclerView container = (RecyclerView) findViewById(R.id.my_recycler_view);
         container.setHasFixedSize(true);
@@ -95,6 +95,17 @@ public class MainActivity extends AppCompatActivity
         container.setAdapter(new MyAdaptor(posts));
         container.setLayoutManager(layoutManager);
     }
+
+    private void setProfileMainContent(){
+        ArrayList<Post> posts = Post.getOwnHistoryPosts(app.userLoggedIn);
+        RecyclerView container = (RecyclerView) findViewById(R.id.my_recycler_view);
+        container.setHasFixedSize(true);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this.app);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        container.setAdapter(new MyAdaptor(posts));
+        container.setLayoutManager(layoutManager);
+    }
+
 
     private void goLoginScreen() {
         Intent intent = new Intent(this, Login.class);
@@ -146,19 +157,20 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        if (id == R.id.nav_now) {
+            Toast.makeText(app, "Now", Toast.LENGTH_SHORT).show();
+            setNowMainContent();
+        } else if (id == R.id.nav_profile) {
+            Toast.makeText(app, "Profile", Toast.LENGTH_SHORT).show();
+            setProfileMainContent();
+        } else if (id == R.id.nav_map_activity) {
+            Toast.makeText(app, "Map Activities", Toast.LENGTH_SHORT).show();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
+        } else if (id == R.id.nav_chat) {
+            Toast.makeText(app, "Chat", Toast.LENGTH_SHORT).show();
 
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_flash_stories) {
+            Toast.makeText(app, "Flash Stories", Toast.LENGTH_SHORT).show();
 
         } else if (id == R.id.nav_logout) {
             logout();

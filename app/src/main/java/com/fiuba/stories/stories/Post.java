@@ -66,35 +66,27 @@ public class Post {
         ArrayList<Post> posts = new ArrayList<Post>();
 
         User user = new User("Sebas", "Menniti", "mennitise@gmail.com", "image");
-        posts.add(new Post("Title 1",
-                "Description 1",
-                R.drawable.stories_no_image,
-                user,
-                Post.privacity_public));
+        for (int i = 1; i < 6; i++) {
+            posts.add(new Post("Title "+i,
+                    "Description "+i,
+                    R.drawable.stories_no_image,
+                    user,
+                    Post.privacity_public));
+        }
+        return posts;
+    }
 
-        posts.add(new Post("Title 2",
-                "Description 2",
-                R.drawable.stories_no_image,
-                user,
-                Post.privacity_public));
+    public static ArrayList<Post> getOwnHistoryPosts(User currentUser) {
+        ArrayList<Post> posts = new ArrayList<Post>();
 
-        posts.add(new Post("Title 3",
-                "Description 3",
-                R.drawable.stories_no_image,
-                user,
-                Post.privacity_public));
-
-        posts.add(new Post("Title 4",
-                "Description 4",
-                R.drawable.stories_no_image,
-                user,
-                Post.privacity_public));
-
-        posts.add(new Post("Title 5",
-                "Description 5",
-                R.drawable.stories_no_image,
-                user,
-                Post.privacity_public));
+        User user = new User("Sebas", "Menniti", "mennitise@gmail.com", "image");
+        for (int i = 1; i < 10; i++) {
+            posts.add(new Post("Profile post "+i,
+                    "Profile Description "+i,
+                    R.drawable.stories_splash,
+                    user,
+                    Post.privacity_public));
+        }
         return posts;
     }
 }
