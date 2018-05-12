@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity
         }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("Home");
         setSupportActionBar(toolbar);
 
 
@@ -114,6 +115,12 @@ public class MainActivity extends AppCompatActivity
         finish();
     }
 
+    private void goToProfileScreen() {
+        Intent intent = new Intent(this, ProfileActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
+        startActivity(intent);
+    }
+
     public void logout() {
         ((StoriesApp) getApplicationContext()).userLoggedIn = null;
         LoginManager.getInstance().logOut();
@@ -162,7 +169,8 @@ public class MainActivity extends AppCompatActivity
             setNowMainContent();
         } else if (id == R.id.nav_profile) {
             Toast.makeText(app, "Profile", Toast.LENGTH_SHORT).show();
-            setProfileMainContent();
+            //setProfileMainContent();
+            goToProfileScreen();
         } else if (id == R.id.nav_map_activity) {
             Toast.makeText(app, "Map Activities", Toast.LENGTH_SHORT).show();
 
@@ -180,4 +188,6 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+
 }
