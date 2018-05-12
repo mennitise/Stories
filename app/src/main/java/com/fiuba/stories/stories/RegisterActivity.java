@@ -246,9 +246,27 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-
-            AppServerRequest.registerUser(firstName, lastName, email, birthday, "99", "male",password, new UtilCallbacks.CallbackRequestRegister(this, MainActivity.class));
-
+            Runnable runner200 = new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getBaseContext(), "Register Successful.", Toast.LENGTH_LONG).show();
+                }
+            };
+            Runnable runner401 = new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getBaseContext(), "The user is already registered.", Toast.LENGTH_LONG).show();
+                }
+            };
+            Runnable runner400 = new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getBaseContext(), "The registration fails. Please try again.", Toast.LENGTH_LONG).show();
+                }
+            };
+            UtilCallbacks util = new UtilCallbacks();
+            AppServerRequest.registerUser(firstName, lastName, email, birthday, "99", "male",password,
+                                            util.getCallbackRequestRegister(email, this.app, this, MainActivity.class, runner200, runner401, runner400));
             mAuthTask = new UserLoginTask(email, password);
             mAuthTask.execute((Void) null);
         }
