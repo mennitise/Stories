@@ -5,13 +5,15 @@ import android.app.Application;
 import java.util.ArrayList;
 
 public class Post {
+    String id;
     String title;
     String description;
     int imagePost;
     User ownerUser;
     int privacity;
 
-    public Post(String title, String description, int imagePost, User ownerUser, int privacity) {
+    public Post(String id, String title, String description, int imagePost, User ownerUser, int privacity) {
+        this.id = id;
         this.title = title;
         this.description = description;
         this.imagePost = imagePost;
@@ -67,7 +69,8 @@ public class Post {
 
         User user = new User("Sebas", "Menniti", "mennitise@gmail.com", "image");
         for (int i = 1; i < 6; i++) {
-            posts.add(new Post("Title "+i,
+            posts.add(new Post(String.valueOf(i),
+                    "Title "+i,
                     "Description "+i,
                     R.drawable.stories_no_image,
                     user,
@@ -81,7 +84,8 @@ public class Post {
 
         User user = new User("Sebas", "Menniti", "mennitise@gmail.com", "image");
         for (int i = 1; i < 10; i++) {
-            posts.add(new Post("Profile post "+i,
+            posts.add(new Post(String.valueOf(i),
+                    "Profile post "+i,
                     "Profile Description "+i,
                     R.drawable.stories_splash,
                     user,

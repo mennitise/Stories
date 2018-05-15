@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -56,13 +57,13 @@ public class MainActivity extends AppCompatActivity
         toolbar.setTitle("Home");
         setSupportActionBar(toolbar);
 
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "Create a story", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                
             }
         });
 
@@ -89,16 +90,6 @@ public class MainActivity extends AppCompatActivity
 
     private void setNowMainContent(){
         ArrayList<Post> posts = Post.getHistoryPosts(app.userLoggedIn);
-        RecyclerView container = (RecyclerView) findViewById(R.id.my_recycler_view);
-        container.setHasFixedSize(true);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this.app);
-        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        container.setAdapter(new MyAdaptor(posts));
-        container.setLayoutManager(layoutManager);
-    }
-
-    private void setProfileMainContent(){
-        ArrayList<Post> posts = Post.getOwnHistoryPosts(app.userLoggedIn);
         RecyclerView container = (RecyclerView) findViewById(R.id.my_recycler_view);
         container.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this.app);

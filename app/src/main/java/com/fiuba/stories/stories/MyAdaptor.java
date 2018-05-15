@@ -25,6 +25,7 @@ public class MyAdaptor extends RecyclerView.Adapter<MyViewHolder> {
         holder.titlePost.setText(posts.get(position).getTitle());
         holder.descriptionPost.setText(posts.get(position).getDescription());
         holder.imagePost.setImageResource(posts.get(position).getImagePost());
+        holder.currentPost = posts.get(position);
     }
 
     @Override

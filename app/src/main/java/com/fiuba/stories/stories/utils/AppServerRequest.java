@@ -1,5 +1,6 @@
 package com.fiuba.stories.stories.utils;
 
+import android.net.wifi.hotspot2.pps.Credential;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -21,6 +22,7 @@ public class AppServerRequest {
     private static final String USER_LOGIN = "/api/users/login";
     private static final String USER_SIGNUP = "/api/users/signup";
     private static final String PROFILE_INFO = "/api/profile";
+    private static final String STORIES = "/api/stories";
     private static final OkHttpClient client = new OkHttpClient();
     public static final MediaType JSON = MediaType.parse("application/json");
 
@@ -96,6 +98,15 @@ public class AppServerRequest {
         String credential = Credentials.basic(username, token);
         Log.d("CREDENTIAL", credential);
         AppServerRequest.getWithAuth(BASE_URL + PROFILE_INFO, credential, username, callback);
+    }
+
+    public static void postStory(){
+
+    }
+
+    public static void getStory(String username, String token, Callback callback){
+        String credential = Credentials.basic(username, token);
+        AppServerRequest.getWithAuth(BASE_URL + STORIES, credential, username, callback);
     }
 
     //----------------------------------------------------------------------------------------------

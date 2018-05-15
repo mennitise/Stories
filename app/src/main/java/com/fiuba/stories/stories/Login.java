@@ -230,7 +230,6 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                                     password,
                                     util.getCallbackRequestLogin(mEmailView.getText().toString(),this.app, this, MainActivity.class, runner200, runner401, runner400)
         );
-        //StoriesApp app, Login loginActivity, Class<MainActivity> mainActivityClass, Runnable runnner
     }
 
     @Override

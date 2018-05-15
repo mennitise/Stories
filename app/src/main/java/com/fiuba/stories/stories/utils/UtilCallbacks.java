@@ -5,16 +5,23 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.fiuba.stories.stories.Login;
 import com.fiuba.stories.stories.MainActivity;
+import com.fiuba.stories.stories.MyAdaptor;
+import com.fiuba.stories.stories.Post;
+import com.fiuba.stories.stories.ProfileActivity;
 import com.fiuba.stories.stories.RegisterActivity;
 import com.fiuba.stories.stories.StoriesApp;
 import com.fiuba.stories.stories.User;
 
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 public class UtilCallbacks{
 
@@ -181,6 +188,12 @@ public class UtilCallbacks{
                     if (jsonResponse.get("birthday") != null){
                         this.app.userLoggedIn.setBirthday(jsonResponse.get("birthday").toString());
                     }
+                    if (jsonResponse.get("gender") != null){
+                        this.app.userLoggedIn.setGender(jsonResponse.get("gender").toString());
+                    }
+                    if (jsonResponse.get("age") != null){
+                        this.app.userLoggedIn.setAge(jsonResponse.get("age").toString());
+                    }
                     this.app.userLoggedIn.LOG_USER();
                 } else if (getHTTPResponse().code() == 401){
                     // Problem obtains the profile data
@@ -234,14 +247,17 @@ public class UtilCallbacks{
                     if(jsonResponse.get("firstname") != null) {
                         this.app.userLoggedIn.setFirstName(jsonResponse.get("firstname").toString());
                     }
-                    /*
                     if(jsonResponse.get("email") != null){
-                        // Not necessary, set in the previous api callback
-                        // app.userLoggedIn.setEmail(jsonResponse.get("email").toString());
+                        this.app.userLoggedIn.setEmail(jsonResponse.get("email").toString());
                     }
-                    */
                     if (jsonResponse.get("birthday") != null){
                         this.app.userLoggedIn.setBirthday(jsonResponse.get("birthday").toString());
+                    }
+                    if (jsonResponse.get("gender") != null){
+                        this.app.userLoggedIn.setGender(jsonResponse.get("gender").toString());
+                    }
+                    if (jsonResponse.get("age") != null){
+                        this.app.userLoggedIn.setAge(jsonResponse.get("age").toString());
                     }
                     this.app.userLoggedIn.LOG_USER();
                 } else if (getHTTPResponse().code() == 401){
@@ -250,7 +266,6 @@ public class UtilCallbacks{
                 } else if (getHTTPResponse().code() == 400){
                     // The log in fails
                     new Handler(Looper.getMainLooper()).post(this.runner400);
-
                 }
                 Log.d("Debug", "GO TO MAIN SCREEN");
                 Intent intent = new Intent(this.registerActivity, this.mainActivityClass);
@@ -263,5 +278,4 @@ public class UtilCallbacks{
             }
         }
     }
-
 }

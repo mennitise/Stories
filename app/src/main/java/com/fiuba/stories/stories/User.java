@@ -31,6 +31,8 @@ public class User {
     @SerializedName("lastName") protected String lastName;
     @SerializedName("email")protected String email;
     @SerializedName("birthday")protected String birthday;
+    @SerializedName("gender")protected String gender;
+    @SerializedName("age")protected String age;
     protected Boolean fbUser;
     protected String token;
     protected String fbToken;
@@ -67,6 +69,14 @@ public class User {
         this.birthday = birthday;
     }
 
+    public void setGender(String gender){
+        this.gender = gender;
+    }
+
+    public void setAge(String age) {
+        this.age = age;
+    }
+
     public String getName(){
         return firstName+" "+lastName;
     }
@@ -89,9 +99,9 @@ public class User {
                                 + "LAST NAME: " + this.lastName + "\n"
                                 + "EMAIL: " + this.email + "\n"
                                 + "BIRTHDAY: " + this.birthday + "\n"
+                                + "GENDER: " + this.gender + "\n"
                                 + "TOKEN: " + this.token + "\n"
                                 + "FB_TOKEN: " + this.fbToken + "\n"
                                 + "FB_USER: " + this.fbUser);
     }
-
 }

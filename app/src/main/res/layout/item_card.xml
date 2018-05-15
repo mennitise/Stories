@@ -12,6 +12,7 @@
     android:layout_marginLeft="@dimen/md_keylines"
     android:layout_marginRight="@dimen/md_keylines"
     android:foreground="?attr/selectableItemBackground"
+    app:cardBackgroundColor="@color/colorPrimary"
     app:cardCornerRadius="5dp">
 
     <RelativeLayout
@@ -24,6 +25,7 @@
             android:layout_height="@dimen/card_image_height"
             android:scaleType="centerCrop"
             tools:src="@drawable/stories_no_image"
+            android:layout_margin="5dp"
             android:contentDescription="postImage" />
 
         <TextView
@@ -44,6 +46,7 @@
             android:layout_marginTop="@dimen/md_keylines"
             android:layout_marginBottom="@dimen/md_keylines"
             android:layout_marginRight="@dimen/md_keylines"
+            android:textColor="@color/white"
             tools:text="@string/item_desc"
             android:ellipsize="end"
             android:singleLine="true"
@@ -55,7 +58,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/description_post"
             style="?android:attr/borderlessButtonStyle"
-            android:textColor="?attr/colorPrimary"
+            android:textColor="@color/white"
             android:text="Owner Post" />
 
         <ImageButton
