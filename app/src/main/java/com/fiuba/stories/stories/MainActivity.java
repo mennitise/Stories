@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
                 Snackbar.make(view, "Create a story", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                
+                goToCreatePostScreen();
             }
         });
 
@@ -108,6 +108,12 @@ public class MainActivity extends AppCompatActivity
 
     private void goToProfileScreen() {
         Intent intent = new Intent(this, ProfileActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
+        startActivity(intent);
+    }
+
+    private void goToCreatePostScreen(){
+        Intent intent = new Intent(this, CreateStoryActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
         startActivity(intent);
     }

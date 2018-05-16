@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "432400876052",
+    "firebase_url": "https://stories-tii.firebaseio.com",
+    "project_id": "stories-tii",
+    "storage_bucket": "stories-tii.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:432400876052:android:683282a782146826",
+        "android_client_info": {
+          "package_name": "com.fiuba.stories.stories"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "432400876052-8o2mo7i2402pshfrakdsmpej3q44fb7s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAbgOsicFA7B99kVreChFzd50mA3AFvHSI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

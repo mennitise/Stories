@@ -78,6 +78,13 @@ public class User {
     }
 
     public String getName(){
+        if (firstName == null && lastName == null){
+            return null;
+        } else if (firstName == null){
+            return lastName;
+        } else if (lastName == null){
+            return firstName;
+        }
         return firstName+" "+lastName;
     }
 

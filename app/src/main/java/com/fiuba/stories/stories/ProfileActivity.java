@@ -143,12 +143,16 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     public void setProfileMainContent(ArrayList<Post> posts){
-        RecyclerView container = (RecyclerView) findViewById(R.id.profile_recycler_view);
-        container.setHasFixedSize(true);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this.app);
-        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        layoutManager.scrollToPosition(0);
-        container.setAdapter(new MyAdaptor(posts));
-        container.setLayoutManager(layoutManager);
+        if (posts.size() == 0){
+            Toast.makeText(getBaseContext(),"Don't have stories to show. Post one to start!", Toast.LENGTH_LONG).show();
+        } else {
+            RecyclerView container = (RecyclerView) findViewById(R.id.profile_recycler_view);
+            container.setHasFixedSize(true);
+            LinearLayoutManager layoutManager = new LinearLayoutManager(this.app);
+            layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+            layoutManager.scrollToPosition(0);
+            container.setAdapter(new MyAdaptor(posts));
+            container.setLayoutManager(layoutManager);
+        }
     }
 }

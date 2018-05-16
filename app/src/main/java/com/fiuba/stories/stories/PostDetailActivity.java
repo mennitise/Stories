@@ -13,6 +13,8 @@ import android.widget.TextView;
 public class PostDetailActivity extends AppCompatActivity {
 
     public static final String ID_POST = "idPost";
+    public static final String USERNAME_POST = "usernamePost";
+    public static final String NAME_AUTHOR_POST = "nameAuthorPost";
     public static final String TITLE_POST = "titlePost";
     public static final String DESCRIPTION_POST = "descPost";
     public static final String IMAGE_POST = "imagePost";
@@ -25,6 +27,8 @@ public class PostDetailActivity extends AppCompatActivity {
         Intent intent = getIntent();
 
         String id = intent.getStringExtra(ID_POST);
+        String username = intent.getStringExtra(USERNAME_POST);
+        String nameAuthor = intent.getStringExtra(NAME_AUTHOR_POST);
 
         String title = intent.getStringExtra(TITLE_POST);
         TextView titleView = findViewById(R.id.title_post);
@@ -37,6 +41,18 @@ public class PostDetailActivity extends AppCompatActivity {
         int image = intent.getIntExtra(IMAGE_POST,0);
         ImageView imageView = findViewById(R.id.post_image);
         imageView.setImageResource(image);
+
+        Button author = findViewById(R.id.author_post);
+        if (nameAuthor != null){
+            author.setText(nameAuthor);
+        }
+        author.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Author of the story", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
 
         ImageButton like = findViewById(R.id.like_button);
         ImageButton dislike = findViewById(R.id.dislike_button);

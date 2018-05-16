@@ -8,10 +8,10 @@
     android:layout_height="@dimen/card_height"
     android:layout_gravity="center"
     android:layout_margin="10dp"
+
     android:layout_marginBottom="@dimen/md_keylines"
     android:layout_marginLeft="@dimen/md_keylines"
     android:layout_marginRight="@dimen/md_keylines"
-    android:foreground="?attr/selectableItemBackground"
     app:cardBackgroundColor="@color/colorPrimary"
     app:cardCornerRadius="5dp">
 
@@ -56,30 +56,34 @@
             android:id="@+id/owner_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:paddingBottom="@dimen/md_keylines"
             android:layout_below="@+id/description_post"
             style="?android:attr/borderlessButtonStyle"
             android:textColor="@color/white"
             android:text="Owner Post" />
 
-        <ImageButton
-            android:id="@+id/share_button"
-            android:layout_width="@dimen/cards_button_width"
-            android:layout_height="@dimen/cards_button_height"
-            android:layout_marginRight="@dimen/md_keylines"
-            app:srcCompat="@drawable/ic_menu_share"
-            android:layout_below="@+id/description_post"
-            android:layout_alignParentRight="true"
-            style="?android:attr/borderlessButtonStyle" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="10dp">
+            <ImageButton
+                android:id="@+id/like_post_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/baseline_thumb_up_white_1_24dp"
+                style="?android:attr/borderlessButtonStyle" />
+            <ImageButton
+                android:id="@+id/dislike_post_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/baseline_thumb_down_white_1_24dp"
+                style="?android:attr/borderlessButtonStyle" />
 
-        <ImageButton
-            android:id="@+id/favorite_button"
-            android:layout_width="@dimen/cards_button_width"
-            android:layout_height="@dimen/cards_button_height"
-            android:layout_marginRight="@dimen/md_keylines"
-            app:srcCompat="@drawable/ic_menu_slideshow"
-            android:layout_below="@+id/description_post"
-            android:layout_toLeftOf="@+id/share_button"
-            style="?android:attr/borderlessButtonStyle" />
+        </LinearLayout>
+
     </RelativeLayout>
 
 </android.support.v7.widget.CardView>

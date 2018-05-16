@@ -42,6 +42,8 @@
     <string name="title_activity_test_navigation">TestNavigationActivity</string>
     <string name="title_activity_register">Register</string>
 
+    <string name="prompt_title_post">Title</string>
+    <string name="prompt_description_post">Description</string>
 
     <string name="item_title">Palais Garnier</string>
     <string name="item_desc">The Palais Garnier which locates in Paris was built from 1861 for

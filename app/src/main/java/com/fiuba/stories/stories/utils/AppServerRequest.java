@@ -3,6 +3,8 @@ package com.fiuba.stories.stories.utils;
 import android.net.wifi.hotspot2.pps.Credential;
 import android.util.Log;
 
+import com.fiuba.stories.stories.Post;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -100,8 +102,23 @@ public class AppServerRequest {
         AppServerRequest.getWithAuth(BASE_URL + PROFILE_INFO, credential, username, callback);
     }
 
-    public static void postStory(){
+    public static void postStory(String username, String token, Post story, Callback callback){
+        JSONObject json = new JSONObject();
+        try {
+            json.put("title", story.getTitle());
+            json.put("description", story.getDescription());
+            json.put("username", username);
+            json.put("state", "Public");
+            json.put("url", "image");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Log.d("JSON", json.toString());
 
+        String credential = Credentials.basic(username,token);
+
+        RequestBody request = RequestBody.create(AppServerRequest.JSON, json.toString());
+        AppServerRequest.postWithAuth(BASE_URL + STORIES, credential, username, callback, request);
     }
 
     public static void getStory(String username, String token, Callback callback){
@@ -145,6 +162,18 @@ public class AppServerRequest {
         call.enqueue(callback);
     }
 
+    public static void postWithAuth(String url, String credential, String username, Callback callback, RequestBody body) {
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .header("Authorization", credential)
+                .header("username", username)
+                .header("Content-Type","application/json")
+                .build();
+        Call call = client.newCall(request);
+        call.enqueue(callback);
+    }
+
     public static void put(String url, Callback callback, RequestBody body) {
         Request request = new Request.Builder()
                 .url(url)
@@ -158,7 +187,7 @@ public class AppServerRequest {
         Request request = new Request.Builder()
                 .url(url)
                 .put(body)
-                .header("Autorization", credential)
+                .header("Authorization", credential)
                 .header("username", username)
                 .build();
         Call call = client.newCall(request);
