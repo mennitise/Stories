@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,13 +24,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class CreateStoryActivity extends AppCompatActivity {
 
@@ -50,6 +44,7 @@ public class CreateStoryActivity extends AppCompatActivity {
     private String description;
     private String privacity;
     private String urlImage;
+    private Uri selectedImage;
 
 
     @Override
@@ -57,6 +52,7 @@ public class CreateStoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         this.app = (StoriesApp) getApplicationContext();
         setContentView(R.layout.activity_create_story);
+        selectedImage = null;
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
 
@@ -76,21 +72,48 @@ public class CreateStoryActivity extends AppCompatActivity {
         publish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                id = "0";
-                title = mTitle.getText().toString();
-                description = mDescription.getText().toString();
-                urlImage = "image";
+                if (selectedImage != null) {
+                    /* ---------------- FIREBASE UPLOAD ---------------- */
 
-                int priv;
-                if (mPrivacity.getCheckedRadioButtonId() == R.id.public_radio){
-                    privacity = "Public";
-                    priv = Post.privacity_public;
+                    final StorageReference fileReference = storageRef.child("images/"+selectedImage.getLastPathSegment());
+                    UploadTask uploadTask = fileReference.putFile(selectedImage);
+
+                    // Register observers to listen for when the download is done or if it fails
+                    uploadTask.addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception exception) {
+                            Log.d("IMAGE NOT UPLOADED", "Fails at upload");
+                        }
+                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+                            // ...
+                            Log.d("URL:",taskSnapshot.getDownloadUrl().toString());
+                            urlImage = taskSnapshot.getDownloadUrl().toString();
+                            id = "0";
+                            title = mTitle.getText().toString();
+                            description = mDescription.getText().toString();
+
+                            int priv;
+                            if (mPrivacity.getCheckedRadioButtonId() == R.id.public_radio){
+                                privacity = "Public";
+                                priv = Post.privacity_public;
+                            } else {
+                                privacity = "Private";
+                                priv = Post.privacity_private;
+                            }
+                            requestUploadStory(new Post("0", title, description, 0, app.userLoggedIn, priv, urlImage));
+                        }
+                    });
+
+                    /* ---------------- FIREBASE UPLOAD ---------------- */
                 } else {
-                    privacity = "Private";
-                    priv = Post.privacity_private;
-                }
-                int url = 0;
-                requestUploadStory(new Post("0", title, description, url, app.userLoggedIn, priv));
+                    // Not upload file
+                    Log.d("IMAGE NOT UPLOADED", "UPLOAD THE IMAGE");
+            }
+
+
             }
         });
     }
@@ -101,27 +124,9 @@ public class CreateStoryActivity extends AppCompatActivity {
 
         //Detects request codes
         if(requestCode==GET_FROM_GALLERY && resultCode == Activity.RESULT_OK) {
-            Uri selectedImage = data.getData();
+            selectedImage = data.getData();
             Log.d("Uri: ", selectedImage.toString());
-            final StorageReference fileReference = storageRef.child("images/"+selectedImage.getLastPathSegment());
-            UploadTask uploadTask = fileReference.putFile(selectedImage);
-
-            // Register observers to listen for when the download is done or if it fails
-            uploadTask.addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception exception) {
-                    // Handle unsuccessful uploads
-                }
-            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
-                    // ...
-                    Log.d("URL:",taskSnapshot.getDownloadUrl().toString());
-                }
-            });
-
-            Bitmap bitmap = null;
+            Bitmap bitmap;
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
                 mediaUpload.setImageBitmap(bitmap);
@@ -141,9 +146,7 @@ public class CreateStoryActivity extends AppCompatActivity {
         @Override
         public void onResponse() {
             try{
-                //Log.d("HTTP RESPONSE: ", getHTTPResponse().toString());
-                // GET THE ID
-                //JSONObject jsonResponse = getJSONResponse();
+                Log.d("ERRRRRROOOOOOORRRRRR",getHTTPResponse().toString());
 
                 if (getHTTPResponse().code() == 200) {
                     CreateStoryActivity.this.runOnUiThread(new CreateStoryActivity.CallbackRequestPostStory.SetResults());
@@ -166,14 +169,14 @@ public class CreateStoryActivity extends AppCompatActivity {
             public void run(){
                 Toast.makeText(getBaseContext(), "Published", Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(getBaseContext(), PostDetailActivity.class);
-
                 intent.putExtra(PostDetailActivity.ID_POST, id);
                 intent.putExtra(PostDetailActivity.TITLE_POST, title);
                 intent.putExtra(PostDetailActivity.DESCRIPTION_POST, description);
-                intent.putExtra(PostDetailActivity.IMAGE_POST, urlImage);
-
+                intent.putExtra(PostDetailActivity.NAME_AUTHOR_POST, app.userLoggedIn.getName());
+                intent.putExtra(PostDetailActivity.IMAGE_POST, 0);
+                intent.putExtra(PostDetailActivity.URL_IMAGE_POST, urlImage);
                 getBaseContext().startActivity(intent);
-                finish(); // FIX ME: GO TO STORY SCREEN .-
+                finish();
             }
         }
     }

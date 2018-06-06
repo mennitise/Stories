@@ -11,14 +11,16 @@ public class Post {
     int imagePost;
     User ownerUser;
     int privacity;
+    String urlImage;
 
-    public Post(String id, String title, String description, int imagePost, User ownerUser, int privacity) {
+    public Post(String id, String title, String description, int imagePost, User ownerUser, int privacity, String urlImage) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.imagePost = imagePost;
         this.ownerUser = ownerUser;
         this.privacity = privacity;
+        this.urlImage = urlImage;
     }
 
     public static final int privacity_public = 0;
@@ -34,6 +36,10 @@ public class Post {
 
     public int getImagePost() {
         return imagePost;
+    }
+
+    public String getUrlImage() {
+        return this.urlImage;
     }
 
     public void setImagePost(int imagePost) {
@@ -74,22 +80,9 @@ public class Post {
                     "Description "+i,
                     R.drawable.stories_no_image,
                     user,
-                    Post.privacity_public));
-        }
-        return posts;
-    }
-
-    public static ArrayList<Post> getOwnHistoryPosts(User currentUser) {
-        ArrayList<Post> posts = new ArrayList<Post>();
-
-        User user = new User("Sebas", "Menniti", "mennitise@gmail.com", "image");
-        for (int i = 1; i < 10; i++) {
-            posts.add(new Post(String.valueOf(i),
-                    "Profile post "+i,
-                    "Profile Description "+i,
-                    R.drawable.stories_splash,
-                    user,
-                    Post.privacity_public));
+                    Post.privacity_public,
+                    "")
+            );
         }
         return posts;
     }

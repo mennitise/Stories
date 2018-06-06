@@ -60,6 +60,8 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
                 intent.putExtra(PostDetailActivity.TITLE_POST, currentPost.getTitle());
                 intent.putExtra(PostDetailActivity.DESCRIPTION_POST, currentPost.getDescription());
                 intent.putExtra(PostDetailActivity.IMAGE_POST, currentPost.getImagePost());
+                intent.putExtra(PostDetailActivity.URL_IMAGE_POST, currentPost.getUrlImage());
+
 
                 v.getContext().startActivity(intent);
             }

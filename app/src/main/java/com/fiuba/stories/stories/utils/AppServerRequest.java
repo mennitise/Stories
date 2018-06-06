@@ -102,6 +102,11 @@ public class AppServerRequest {
         AppServerRequest.getWithAuth(BASE_URL + PROFILE_INFO, credential, username, callback);
     }
 
+    public static void getAlienProfileInformation(String alienUsername, String username, String token, Callback callback){
+        String credential = Credentials.basic(username, token);
+        AppServerRequest.getWithAuth(BASE_URL + PROFILE_INFO, credential, alienUsername, callback);
+    }
+
     public static void postStory(String username, String token, Post story, Callback callback){
         JSONObject json = new JSONObject();
         try {
@@ -109,7 +114,7 @@ public class AppServerRequest {
             json.put("description", story.getDescription());
             json.put("username", username);
             json.put("state", "Public");
-            json.put("url", "image");
+            json.put("url", story.getUrlImage());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -126,31 +131,11 @@ public class AppServerRequest {
         AppServerRequest.getWithAuth(BASE_URL + STORIES, credential, username, callback);
     }
 
-    //----------------------------------------------------------------------------------------------
-    /*
-    public static void sendTestRequest(Map<String,String> params, Callback callback) {
-        String route = BASE_URL + "get?";
-        for (Map.Entry param : params.entrySet()) {
-            route += String.format("%s=%s&", param.getKey(), param.getValue());
-        }
-        get(route, callback);
+    public static void getAlienStories(String alienUsername, String username, String token, Callback callback){
+        String credential = Credentials.basic(username, token);
+        AppServerRequest.getWithAuth(BASE_URL + STORIES, credential, alienUsername, callback);
     }
 
-    public static void sendTestRequest(String params, Callback callback) {
-        String route = BASE_URL + "get?" + params;
-
-        Log.e("REQUEST URL:", route);
-
-        get(route, callback);
-    }
-
-    public static void sendSignUpUser(String params, Callback callback, RequestBody request) {
-        String route = BASE_URL + "/api/users/signup";
-        Log.d("REQUEST URL: ", route);
-        Log.d("REQUEST: ", request.toString());
-        put(route, callback, request);
-    }
-    */
     //----------------------------------------------------------------------------------------------
 
     public static void post(String url, Callback callback, RequestBody body) {

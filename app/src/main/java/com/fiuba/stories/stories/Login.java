@@ -67,17 +67,6 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
      */
     private static final int REQUEST_READ_CONTACTS = 0;
 
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
-    private UserLoginTask mAuthTask = null;
     private LoginButton loginButton;
     private CallbackManager callbackManager;
 
@@ -138,7 +127,7 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                             public void onCompleted(JSONObject object, GraphResponse response) {
                                 //response.
                                 Log.d("USER FB:", response.toString());
-                                ((StoriesApp) getApplicationContext()).userLoggedIn = new User("Sebastian","Menniti","","");
+                                ((StoriesApp) getApplicationContext()).userLoggedIn = new User("sebatian","Menniti","","");
                                 goMainScreen();
                             }
                         });
@@ -177,9 +166,7 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                String email = mEmailView.getText().toString();
-                String password = mPasswordView.getText().toString();
-                loginUser(email, password);
+                attemptLogin();
             }
         });
         regiterButton.setOnClickListener(new OnClickListener() {
@@ -216,12 +203,14 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
             @Override
             public void run() {
                 Toast.makeText(getBaseContext(), "The email or password you entered is not valid. Please try again.", Toast.LENGTH_LONG).show();
+                showProgress(false);
             }
         };
         Runnable runner400 = new Runnable() {
             @Override
             public void run() {
                 Toast.makeText(getBaseContext(), "The login fails. Please try again.", Toast.LENGTH_LONG).show();
+                showProgress(false);
             }
         };
         UtilCallbacks util = new UtilCallbacks();
@@ -288,10 +277,6 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
-        if (mAuthTask != null) {
-            return;
-        }
-
         // Reset errors.
         mEmailView.setError(null);
         mPasswordView.setError(null);
@@ -328,9 +313,8 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
+            loginUser(email,password);
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
         }
     }
 
@@ -432,62 +416,5 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
 
         int ADDRESS = 0;
         int IS_PRIMARY = 1;
-    }
-
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-
-        private final String mEmail;
-        private final String mPassword;
-
-        UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
-
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
-
-            // TODO: register the new account here.
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-            showProgress(false);
-
-            if (success) {
-                finish();
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
-        }
     }
 }

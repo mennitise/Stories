@@ -146,4 +146,7 @@
         "For example, position the FAB to one side of stream of a cards so the FAB won’t interfere "
         "when a user tries to pick up one of cards.\n\n"
     </string>
+    <string name="title_activity_alien_profile">AlienProfileActivity</string>
+    <string name="title_activity_stories_flash">StoriesFlashActivity</string>
+    <string name="section_format">Hello World from section: %1$d</string>
 </resources>

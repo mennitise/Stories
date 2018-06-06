@@ -25,12 +25,13 @@
             android:layout_marginBottom="@dimen/md_keylines"
             android:layout_marginLeft="@dimen/md_keylines"
             android:layout_marginRight="@dimen/md_keylines"
-            android:foreground="?attr/selectableItemBackground"
+            android:background="@color/colorPrimary"
             app:cardCornerRadius="5dp">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
+                android:background="@color/colorPrimary"
                 android:padding="5dp">
 
                 <LinearLayout
@@ -42,12 +43,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingBottom="5dp"
+                        android:textColor="@color/white"
                         android:text="Name: "/>
                     <TextView
                         android:id="@+id/info_profile_name_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingBottom="5dp"
+                        android:textColor="@color/white"
                         android:text="Private"/>
                 </LinearLayout>
 
@@ -60,12 +63,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingBottom="5dp"
+                        android:textColor="@color/white"
                         android:text="Email: "/>
                     <TextView
                         android:id="@+id/info_profile_email_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingBottom="5dp"
+                        android:textColor="@color/white"
                         android:text="Private"/>
                 </LinearLayout>
                 <LinearLayout
@@ -77,12 +82,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingBottom="5dp"
+                        android:textColor="@color/white"
                         android:text="Birthday: "/>
                     <TextView
                         android:id="@+id/info_profile_birthday_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingBottom="5dp"
+                        android:textColor="@color/white"
                         android:text="Private"/>
                 </LinearLayout>
                 <LinearLayout
@@ -94,12 +101,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingBottom="5dp"
+                        android:textColor="@color/white"
                         android:text="Gender: "/>
                     <TextView
                         android:id="@+id/info_profile_gender_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingBottom="5dp"
+                        android:textColor="@color/white"
                         android:text="Private"/>
                 </LinearLayout>
             </LinearLayout>

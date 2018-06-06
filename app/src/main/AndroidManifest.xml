@@ -45,7 +45,15 @@
             android:label="@string/title_activity_profile"
             android:theme="@style/AppTheme" />
         <activity android:name=".PostDetailActivity" />
-        <activity android:name=".CreateStoryActivity"></activity>
+        <activity android:name=".CreateStoryActivity" />
+        <activity
+            android:name=".AlienProfileActivity"
+            android:label="@string/title_activity_alien_profile"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".StoriesFlashActivity"
+            android:label="@string/title_activity_stories_flash"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>

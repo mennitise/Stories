@@ -59,17 +59,6 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
      */
     private static final int REQUEST_READ_CONTACTS = 0;
 
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
-    private UserLoginTask mAuthTask = null;
 
     private StoriesApp app;
     private String token;
@@ -82,6 +71,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
     private EditText mBirthdayView;
     private View mProgressView;
     private View mLoginFormView;
+    private Button mEmailSignInButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,7 +107,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         });
 
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.send_register_button);
+        mEmailSignInButton = (Button) findViewById(R.id.send_register_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -256,35 +246,21 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
                 @Override
                 public void run() {
                     Toast.makeText(getBaseContext(), "The user is already registered.", Toast.LENGTH_LONG).show();
+                    showProgress(false);
                 }
             };
             Runnable runner400 = new Runnable() {
                 @Override
                 public void run() {
                     Toast.makeText(getBaseContext(), "The registration fails. Please try again.", Toast.LENGTH_LONG).show();
+                    showProgress(false);
                 }
             };
             UtilCallbacks util = new UtilCallbacks();
             AppServerRequest.registerUser(firstName, lastName, email, birthday, "99", "male",password,
                                             util.getCallbackRequestRegister(email, this.app, this, MainActivity.class, runner200, runner401, runner400));
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
         }
     }
-
-    public void goMainScreen() {
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-    }
-
-    public void goLoginScreen(){
-        Intent intent = new Intent(this, Login.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-        finish();
-    }
-
 
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
@@ -324,11 +300,14 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
                     mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
                 }
             });
+            mEmailSignInButton.setVisibility(show ? View.GONE : View.VISIBLE);
+
         } else {
             // The ViewPropertyAnimator APIs are not available, so simply show
             // and hide the relevant UI components.
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
             mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            mEmailSignInButton.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
 
@@ -384,63 +363,6 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
 
         int ADDRESS = 0;
         int IS_PRIMARY = 1;
-    }
-
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-
-        private final String mEmail;
-        private final String mPassword;
-
-        UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
-
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
-
-            // TODO: register the new account here.
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-            showProgress(false);
-
-            if (success) {
-                finish();
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
-        }
     }
 
     public void toastMessage(String message) {

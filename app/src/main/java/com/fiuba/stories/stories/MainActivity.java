@@ -112,6 +112,12 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
+    private void goToFlashStoriesScreen(){
+        Intent intent = new Intent(this, StoriesFlashActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
+        startActivity(intent);
+    }
+
     private void goToCreatePostScreen(){
         Intent intent = new Intent(this, CreateStoryActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
@@ -162,11 +168,8 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         if (id == R.id.nav_now) {
-            Toast.makeText(app, "Now", Toast.LENGTH_SHORT).show();
             setNowMainContent();
         } else if (id == R.id.nav_profile) {
-            Toast.makeText(app, "Profile", Toast.LENGTH_SHORT).show();
-            //setProfileMainContent();
             goToProfileScreen();
         } else if (id == R.id.nav_map_activity) {
             Toast.makeText(app, "Map Activities", Toast.LENGTH_SHORT).show();
@@ -175,8 +178,7 @@ public class MainActivity extends AppCompatActivity
             Toast.makeText(app, "Chat", Toast.LENGTH_SHORT).show();
 
         } else if (id == R.id.nav_flash_stories) {
-            Toast.makeText(app, "Flash Stories", Toast.LENGTH_SHORT).show();
-
+            goToFlashStoriesScreen();
         } else if (id == R.id.nav_logout) {
             logout();
         }

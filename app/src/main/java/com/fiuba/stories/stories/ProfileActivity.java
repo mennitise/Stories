@@ -83,6 +83,7 @@ public class ProfileActivity extends AppCompatActivity {
                         JSONObject story = stories.getJSONObject(i);
                         String username = story.getString("username");
                         User ownerUser = new User();
+                        ownerUser.setEmail(username);
                         JSONObject storyDetails = story.getJSONObject("storyDetail");
                         String id, title, description, url, state;
                         try {
@@ -91,9 +92,9 @@ public class ProfileActivity extends AppCompatActivity {
                             id = "0";
                         }
                         try {
-                            title = story.getString("title");
+                            title = storyDetails.getString("title");
                         }catch (JSONException e){
-                            title = "Title";
+                            title = "title";
                         }
                         try {
                             description = storyDetails.getString("description");
@@ -117,7 +118,7 @@ public class ProfileActivity extends AppCompatActivity {
                             privacity = Post.privacity_private;
                         }
 
-                        posts.add(new Post(id, title, description, R.drawable.stories_splash, ownerUser, privacity ));
+                        posts.add(new Post(id, title, description, R.drawable.stories_splash, ownerUser, privacity, url));
                     }
                     ProfileActivity.this.runOnUiThread(new SetResults());
                 /*
