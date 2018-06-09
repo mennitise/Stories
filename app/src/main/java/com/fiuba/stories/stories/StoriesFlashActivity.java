@@ -1,5 +1,6 @@
 package com.fiuba.stories.stories;
 
+import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -10,15 +11,33 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.fiuba.stories.stories.utils.AppServerRequest;
+import com.fiuba.stories.stories.utils.HttpCallback;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class StoriesFlashActivity extends AppCompatActivity {
+
+    StoriesApp app;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -39,26 +58,24 @@ public class StoriesFlashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stories_flash);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-
-        // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        this.app = (StoriesApp) getApplicationContext();
+        AppServerRequest.getFlashStory(this.app.userLoggedIn.getEmail(), this.app.userLoggedIn.token, new CallbackRequestGetFlashStories());
+        FloatingActionButton addFlashStory = findViewById(R.id.add_flashstory);
+        addFlashStory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "Create a flash story", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                goToCreateFlashStoryScreen();
             }
         });
+    }
 
+    private void goToCreateFlashStoryScreen(){
+        Intent intent = new Intent(this, CreateFlashStoryActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
+        startActivity(intent);
+        finish();
     }
 
 
@@ -92,7 +109,11 @@ public class StoriesFlashActivity extends AppCompatActivity {
          * The fragment argument representing the section number for this
          * fragment.
          */
-        private static final String ARG_SECTION_NUMBER = "section_number";
+        private static final String DESCRIPTION = "section_description";
+        private static final String NAME = "section_name";
+        private static final String URL = "section_url";
+        private FirebaseStorage storage;
+
 
         public PlaceholderFragment() {
         }
@@ -101,10 +122,12 @@ public class StoriesFlashActivity extends AppCompatActivity {
          * Returns a new instance of this fragment for the given section
          * number.
          */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
+        public static PlaceholderFragment newInstance(int sectionNumber, Post story) {
             PlaceholderFragment fragment = new PlaceholderFragment();
             Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+            args.putString(NAME, story.getOwnerUser().email);
+            args.putString(DESCRIPTION, story.getDescription());
+            args.putString(URL,story.getUrlImage());
             fragment.setArguments(args);
             return fragment;
         }
@@ -113,8 +136,27 @@ public class StoriesFlashActivity extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_stories_flash, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
+            TextView name_author = (TextView) rootView.findViewById(R.id.name_flash);
+            name_author.setText(getArguments().getString(NAME));
+            TextView title_story = (TextView) rootView.findViewById(R.id.title_flash);
+            title_story.setText(getArguments().getString(DESCRIPTION));
+            ImageView imagePost = rootView.findViewById(R.id.image_flash);
+
+            storage = FirebaseStorage.getInstance();
+            String urlImage = getArguments().getString(URL);
+            if (urlImage != null && urlImage != ""){
+                Log.d("image",urlImage);
+                try {
+                    StorageReference httpsReference = storage.getReferenceFromUrl(urlImage);
+                    Glide.with(container.getContext())
+                            .using(new FirebaseImageLoader())
+                            .load(httpsReference)
+                            .into(imagePost);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
             return rootView;
         }
     }
@@ -125,21 +167,105 @@ public class StoriesFlashActivity extends AppCompatActivity {
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-        public SectionsPagerAdapter(FragmentManager fm) {
+        private List<Post> stories;
+
+        public SectionsPagerAdapter(FragmentManager fm, List<Post> flashStories) {
             super(fm);
+            this.stories = flashStories;
         }
 
         @Override
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
+            return PlaceholderFragment.newInstance(position + 1, this.stories.get(position));
         }
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
-            return 3;
+            return this.stories.size();
         }
+    }
+
+    public class CallbackRequestGetFlashStories extends HttpCallback {
+        ArrayList<Post> posts;
+
+        @Override
+        public void onResponse() {
+            try{
+                Log.d("HTTP RESPONSE: ", getHTTPResponse().toString());
+                JSONObject jsonResponse = getJSONResponse();
+
+                if (getHTTPResponse().code() == 200) {
+                    Log.d("RESPONSE: ", jsonResponse.toString());
+                    posts = new ArrayList<Post>();
+                    JSONArray stories = (JSONArray) jsonResponse.get("feedStories"); // Array of posts
+                    for(int i = 0; i < stories.length(); ++i){
+                        JSONObject story = stories.getJSONObject(i);
+                        String username = story.getString("username");
+                        User ownerUser = new User();
+                        ownerUser.setEmail(username);
+                        JSONObject storyDetails = story.getJSONObject("storyDetail");
+                        String id, title, description, url, state;
+                        try {
+                            id = story.getString("_id");
+                        }catch (JSONException e){
+                            id = "0";
+                        }
+                        try {
+                            description = storyDetails.getString("description");
+                        }catch (JSONException e){
+                            description = "description";
+                        }
+                        try {
+                            state = storyDetails.getString("state");
+                        }catch (JSONException e){
+                            state = "Private";
+                        }
+                        try {
+                            url = storyDetails.getString("url");
+                        }catch (JSONException e){
+                            url = "Private";
+                        }
+                        int privacity;
+                        if (state == "Public"){
+                            privacity = Post.privacity_public;
+                        } else {
+                            privacity = Post.privacity_private;
+                        }
+
+                        posts.add(new Post(id, null, description, R.drawable.stories_splash, ownerUser, privacity, url));
+                    }
+                    StoriesFlashActivity.this.runOnUiThread(new SetResults());
+                /*
+                } else if (getHTTPResponse().code() == 401){
+                    Toast.makeText(getBaseContext(), "ERROR 401", Toast.LENGTH_LONG).show();
+                } else if (getHTTPResponse().code() == 400){
+                    Toast.makeText(getBaseContext(), "ERROR 400", Toast.LENGTH_LONG).show();
+                */
+                }
+
+            } catch (Exception e) {
+                Log.e("TEST REQUEST CALLBACK", "Error");
+                e.printStackTrace();
+            }
+        }
+
+        class SetResults implements Runnable{
+            @Override
+            public void run(){
+                setFlashStoriesContent(posts);
+            }
+        }
+    }
+
+    public void setFlashStoriesContent(List<Post> posts){
+        // Create the adapter that will return a fragment for each of the three
+        // primary sections of the activity.
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), posts);
+
+        // Set up the ViewPager with the sections adapter.
+        mViewPager = (ViewPager) findViewById(R.id.container);
+        mViewPager.setAdapter(mSectionsPagerAdapter);
     }
 }

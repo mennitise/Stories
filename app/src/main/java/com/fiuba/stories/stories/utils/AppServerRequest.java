@@ -25,6 +25,7 @@ public class AppServerRequest {
     private static final String USER_SIGNUP = "/api/users/signup";
     private static final String PROFILE_INFO = "/api/profile";
     private static final String STORIES = "/api/stories";
+    private static final String FLASHSTORIES = "/api/flashstories";
     private static final OkHttpClient client = new OkHttpClient();
     public static final MediaType JSON = MediaType.parse("application/json");
 
@@ -129,6 +130,29 @@ public class AppServerRequest {
     public static void getStory(String username, String token, Callback callback){
         String credential = Credentials.basic(username, token);
         AppServerRequest.getWithAuth(BASE_URL + STORIES, credential, username, callback);
+    }
+
+    public static void postFlashStory(String username, String token, Post story, Callback callback){
+        JSONObject json = new JSONObject();
+        try {
+            json.put("description", story.getDescription());
+            json.put("username", username);
+            json.put("state", "Public");
+            json.put("url", story.getUrlImage());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Log.d("JSON", json.toString());
+
+        String credential = Credentials.basic(username,token);
+
+        RequestBody request = RequestBody.create(AppServerRequest.JSON, json.toString());
+        AppServerRequest.postWithAuth(BASE_URL + FLASHSTORIES, credential, username, callback, request);
+    }
+
+    public static void getFlashStory(String username, String token, Callback callback){
+        String credential = Credentials.basic(username, token);
+        AppServerRequest.getWithAuth(BASE_URL + FLASHSTORIES, credential, username, callback);
     }
 
     public static void getAlienStories(String alienUsername, String username, String token, Callback callback){

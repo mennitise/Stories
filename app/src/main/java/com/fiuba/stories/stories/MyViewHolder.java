@@ -3,13 +3,21 @@ package com.fiuba.stories.stories;
 import android.content.Intent;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
 public class MyViewHolder extends RecyclerView.ViewHolder {
+
+
 
     public Post currentPost;
     TextView titlePost;
@@ -28,6 +36,8 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
         button1 = (Button) itemView.findViewById(R.id.owner_button);
         button2 = (ImageButton) itemView.findViewById(R.id.like_post_button);
         button3 = (ImageButton) itemView.findViewById(R.id.dislike_post_button);
+
+
 
         button1.setOnClickListener(new View.OnClickListener() {
             @Override

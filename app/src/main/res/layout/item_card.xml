@@ -26,6 +26,7 @@
             android:scaleType="centerCrop"
             tools:src="@drawable/stories_no_image"
             android:layout_margin="5dp"
+
             android:contentDescription="postImage" />
 
         <TextView
@@ -35,6 +36,7 @@
             android:layout_alignBottom="@+id/card_image"
             android:layout_marginLeft="@dimen/md_keylines"
             tools:text="@string/item_title"
+            android:textColor="@color/white"
             android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
         <TextView

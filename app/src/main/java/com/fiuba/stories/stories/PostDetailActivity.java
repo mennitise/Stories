@@ -155,7 +155,6 @@ public class PostDetailActivity extends AppCompatActivity {
         container.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this.app);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        layoutManager.scrollToPosition(0);
         container.setAdapter(new CommentsAdaptor(comments));
         container.setLayoutManager(layoutManager);
     }
