@@ -54,7 +54,9 @@
             android:name=".StoriesFlashActivity"
             android:label="@string/title_activity_stories_flash"
             android:theme="@style/AppTheme" />
-        <activity android:name=".CreateFlashStoryActivity"></activity>
+        <activity android:name=".CreateFlashStoryActivity" />
+        <activity android:name=".InvitationsActivity" />
+        <activity android:name=".FriendsActivity"></activity>
     </application>
 
 </manifest>

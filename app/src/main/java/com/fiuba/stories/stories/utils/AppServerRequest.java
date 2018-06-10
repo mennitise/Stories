@@ -26,6 +26,8 @@ public class AppServerRequest {
     private static final String PROFILE_INFO = "/api/profile";
     private static final String STORIES = "/api/stories";
     private static final String FLASHSTORIES = "/api/flashstories";
+    private static final String INVITATIONS = "/api/invitations";
+    private static final String FRIENDS = "/api/friends";
     private static final OkHttpClient client = new OkHttpClient();
     public static final MediaType JSON = MediaType.parse("application/json");
 
@@ -108,6 +110,11 @@ public class AppServerRequest {
         AppServerRequest.getWithAuth(BASE_URL + PROFILE_INFO, credential, alienUsername, callback);
     }
 
+    public static void getFeedStories(String username, String token, Callback callback){
+        String credential = Credentials.basic(username, token);
+        AppServerRequest.getWithAuth(BASE_URL + STORIES, credential, username, callback);
+    }
+
     public static void postStory(String username, String token, Post story, Callback callback){
         JSONObject json = new JSONObject();
         try {
@@ -159,6 +166,31 @@ public class AppServerRequest {
         String credential = Credentials.basic(username, token);
         AppServerRequest.getWithAuth(BASE_URL + STORIES, credential, alienUsername, callback);
     }
+
+    public static void getFriendInvitations(String username, String token, Callback callback){
+        String credential = Credentials.basic(username, token);
+        AppServerRequest.getWithAuth(BASE_URL + INVITATIONS, credential, username, callback);
+    }
+
+    public static void putAceptInvitation(String username, String token, String friend, Callback callback){
+        JSONObject json = new JSONObject();
+        try {
+            json.put("username", username);
+            json.put("friend", friend);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Log.d("JSON", json.toString());
+        String credential = Credentials.basic(username,token);
+        RequestBody request = RequestBody.create(AppServerRequest.JSON, json.toString());
+        AppServerRequest.putWithAuth(BASE_URL + INVITATIONS, credential, username, callback, request);
+    }
+
+    public static void getFriends(String username, String token, Callback callback){
+        String credential = Credentials.basic(username, token);
+        AppServerRequest.getWithAuth(BASE_URL + FRIENDS, credential, username, callback);
+    }
+
 
     //----------------------------------------------------------------------------------------------
 

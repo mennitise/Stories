@@ -14,6 +14,10 @@
                 android:icon="@drawable/ic_account_circle_black_24dp"
                 android:title="Profile" />
             <item
+                android:id="@+id/nav_invitations"
+                android:icon="@drawable/ic_menu_send"
+                android:title="Friend invitations" />
+            <item
                 android:id="@+id/nav_map_activity"
                 android:icon="@drawable/ic_location_on_black_24dp"
                 android:title="Map Activities" />
@@ -25,10 +29,6 @@
                 android:id="@+id/nav_flash_stories"
                 android:icon="@drawable/ic_flash_on_black_24dp"
                 android:title="Flash Stories" />
-            <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
         </menu>
     </item>
     <item android:title="Settings">

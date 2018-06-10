@@ -12,7 +12,9 @@ import com.fiuba.stories.stories.PostDetailActivity;
 import com.fiuba.stories.stories.RegisterActivity;
 import com.fiuba.stories.stories.StoriesApp;
 import com.fiuba.stories.stories.User;
+import com.google.gson.JsonObject;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class UtilCallbacks{
@@ -110,18 +112,13 @@ public class UtilCallbacks{
                     String token = jsonResponse.get("Token").toString();
                     User currentUser = new User("","",username,"");
                     currentUser.setCurrentToken(token, false);
-
                     currentUser.LOG_USER();
                     this.app.userLoggedIn = currentUser;
                     AppServerRequest.getProfileInformation(this.username, token, new UtilCallbacks.CallbackRequestGetProfile(this.app, this.loginActivity, this.mainActivityClass, this.runner401, this.runner400));
                     new Handler(Looper.getMainLooper()).post(this.runner200);
-
-                    // FIXME: Move this goMainScreen to CallBackRequestGetProfile
-                    //goMainScreen();
                 } else if (getHTTPResponse().code() == 401){
                     // The user is already registered
                     new Handler(Looper.getMainLooper()).post(this.runner401);
-
                 } else {
                     // The log in fails
                     new Handler(Looper.getMainLooper()).post(this.runner400);
@@ -156,30 +153,30 @@ public class UtilCallbacks{
                 JSONObject jsonResponse = getJSONResponse();
                 if (getHTTPResponse().code() == 200) {
                     Log.d("RESPONSE: ", jsonResponse.toString());
-                    Log.d("USER",jsonResponse.get("firstname").toString());
-                    Log.d("USER",jsonResponse.get("lastname").toString());
-                    Log.d("USER",jsonResponse.get("age").toString());
-                    Log.d("USER",jsonResponse.get("gender").toString());
-                    if (jsonResponse.get("lastname") != null){
+                    try{
                         this.app.userLoggedIn.setLastName(jsonResponse.get("lastname").toString());
+                    } catch (JSONException e){
+                        this.app.userLoggedIn.setLastName("");
                     }
-                    if(jsonResponse.get("firstname") != null) {
+                    try{
                         this.app.userLoggedIn.setFirstName(jsonResponse.get("firstname").toString());
+                    } catch (JSONException e) {
+                        this.app.userLoggedIn.setFirstName("");
                     }
-                    /*
-                    if(jsonResponse.get("email") != null){
-                        // Not necessary, set in the previous api callback
-                        // app.userLoggedIn.setEmail(jsonResponse.get("email").toString());
-                    }
-                    */
-                    if (jsonResponse.get("birthday") != null){
+                    try{
                         this.app.userLoggedIn.setBirthday(jsonResponse.get("birthday").toString());
+                    } catch (JSONException e){
+                        this.app.userLoggedIn.setBirthday("");
                     }
-                    if (jsonResponse.get("gender") != null){
+                    try{
                         this.app.userLoggedIn.setGender(jsonResponse.get("gender").toString());
+                    } catch (JSONException e){
+                        this.app.userLoggedIn.setGender("");
                     }
-                    if (jsonResponse.get("age") != null){
+                    try{
                         this.app.userLoggedIn.setAge(jsonResponse.get("age").toString());
+                    } catch (JSONException e){
+                        this.app.userLoggedIn.setAge("");
                     }
                     this.app.userLoggedIn.LOG_USER();
                 } else if (getHTTPResponse().code() == 401){
@@ -188,7 +185,6 @@ public class UtilCallbacks{
                 } else if (getHTTPResponse().code() == 400){
                     // The log in fails
                     new Handler(Looper.getMainLooper()).post(this.runner400);
-
                 }
                 Log.d("Debug", "GO TO MAIN SCREEN");
                 Intent intent = new Intent(this.loginActivity, this.mainActivityClass);

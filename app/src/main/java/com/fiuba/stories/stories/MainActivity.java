@@ -25,6 +25,12 @@ import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.login.LoginManager;
+import com.fiuba.stories.stories.utils.AppServerRequest;
+import com.fiuba.stories.stories.utils.HttpCallback;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,26 +82,7 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        nav_header_name = navigationView.getHeaderView(0).findViewById(R.id.nav_header_name);
-        nav_header_email = navigationView.getHeaderView(0).findViewById(R.id.nav_header_email);
-        setNavigationHeader();
-        setNowMainContent();
-    }
-
-    private void setNavigationHeader() {
-        if(this.app.userLoggedIn != null){
-            MainActivity.this.nav_header_name.setText(this.app.userLoggedIn.firstName+" "+this.app.userLoggedIn.lastName);
-        }
-    }
-
-    private void setNowMainContent(){
-        ArrayList<Post> posts = Post.getHistoryPosts(app.userLoggedIn);
-        RecyclerView container = (RecyclerView) findViewById(R.id.my_recycler_view);
-        container.setHasFixedSize(true);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this.app);
-        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        container.setAdapter(new MyAdaptor(posts));
-        container.setLayoutManager(layoutManager);
+        if(this.app.userLoggedIn != null){ setNowMainContent(); }
     }
 
 
@@ -120,6 +107,12 @@ public class MainActivity extends AppCompatActivity
 
     private void goToCreatePostScreen(){
         Intent intent = new Intent(this, CreateStoryActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
+        startActivity(intent);
+    }
+
+    private void goToInvitations(){
+        Intent intent = new Intent(this, InvitationsActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
         startActivity(intent);
     }
@@ -173,10 +166,10 @@ public class MainActivity extends AppCompatActivity
             goToProfileScreen();
         } else if (id == R.id.nav_map_activity) {
             Toast.makeText(app, "Map Activities", Toast.LENGTH_SHORT).show();
-
         } else if (id == R.id.nav_chat) {
             Toast.makeText(app, "Chat", Toast.LENGTH_SHORT).show();
-
+        } else if (id == R.id.nav_invitations){
+            goToInvitations();
         } else if (id == R.id.nav_flash_stories) {
             goToFlashStoriesScreen();
         } else if (id == R.id.nav_logout) {
@@ -188,5 +181,98 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    private void setNowMainContent(){
+        AppServerRequest.getFeedStories(this.app.userLoggedIn.email, this.app.userLoggedIn.token, new MainActivity.CallbackRequestGetFeedStories());
+    }
 
+    public class CallbackRequestGetFeedStories extends HttpCallback {
+        ArrayList<Post> posts;
+
+        @Override
+        public void onResponse() {
+            try{
+                Log.d("HTTP RESPONSE: ", getHTTPResponse().toString());
+                JSONObject jsonResponse = getJSONResponse();
+
+                if (getHTTPResponse().code() == 200) {
+                    Log.d("RESPONSE: ", jsonResponse.toString());
+                    posts = new ArrayList<Post>();
+                    JSONArray stories = (JSONArray) jsonResponse.get("feedStories"); // Array of posts
+                    for(int i = 0; i < stories.length(); ++i){
+                        JSONObject story = stories.getJSONObject(i);
+                        String username = story.getString("username");
+                        User ownerUser = new User();
+                        ownerUser.setEmail(username);
+                        JSONObject storyDetails = story.getJSONObject("storyDetail");
+                        String id, title, description, url, state;
+                        try {
+                            id = story.getString("_id");
+                        }catch (JSONException e){
+                            id = "0";
+                        }
+                        try {
+                            title = storyDetails.getString("title");
+                        }catch (JSONException e){
+                            title = "title";
+                        }
+                        try {
+                            description = storyDetails.getString("description");
+                        }catch (JSONException e){
+                            description = "description";
+                        }
+                        try {
+                            state = storyDetails.getString("state");
+                        }catch (JSONException e){
+                            state = "Private";
+                        }
+                        try {
+                            url = storyDetails.getString("url");
+                        }catch (JSONException e){
+                            url = "Private";
+                        }
+                        int privacity;
+                        if (state == "Public"){
+                            privacity = Post.privacity_public;
+                        } else {
+                            privacity = Post.privacity_private;
+                        }
+
+                        posts.add(new Post(id, title, description, R.drawable.stories_splash, ownerUser, privacity, url));
+                    }
+                    MainActivity.this.runOnUiThread(new MainActivity.CallbackRequestGetFeedStories.SetResults());
+                /*
+                } else if (getHTTPResponse().code() == 401){
+                    Toast.makeText(getBaseContext(), "ERROR 401", Toast.LENGTH_LONG).show();
+                } else if (getHTTPResponse().code() == 400){
+                    Toast.makeText(getBaseContext(), "ERROR 400", Toast.LENGTH_LONG).show();
+                */
+                }
+
+            } catch (Exception e) {
+                Log.e("TEST REQUEST CALLBACK", "Error");
+                e.printStackTrace();
+            }
+        }
+
+        class SetResults implements Runnable{
+            @Override
+            public void run(){
+                setMainContent(posts);
+            }
+        }
+    }
+
+    public void setMainContent(ArrayList<Post> posts){
+        if (posts.size() == 0){
+            Toast.makeText(getBaseContext(),"Don't have stories to show. Post one to start!", Toast.LENGTH_LONG).show();
+        } else {
+            RecyclerView container = (RecyclerView) findViewById(R.id.my_recycler_view);
+            container.setHasFixedSize(true);
+            LinearLayoutManager layoutManager = new LinearLayoutManager(this.app);
+            layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+            layoutManager.scrollToPosition(0);
+            container.setAdapter(new MyAdaptor(posts));
+            container.setLayoutManager(layoutManager);
+        }
+    }
 }
