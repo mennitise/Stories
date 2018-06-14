@@ -26,8 +26,8 @@ public class CommentsAdaptor extends RecyclerView.Adapter<CommentsViewHolder> {
     @Override
     public void onBindViewHolder(CommentsViewHolder holder, int position) {
         try {
-            holder.authorComment.setText(this.comments.get(position).getString("author"));
-            holder.comment.setText(this.comments.get(position).getString("comment"));
+            holder.authorComment.setText(this.comments.get(position).getString("user"));
+            holder.comment.setText(this.comments.get(position).getString("message"));
         } catch (JSONException e) {
             e.printStackTrace();
         }

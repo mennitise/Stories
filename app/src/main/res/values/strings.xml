@@ -149,4 +149,6 @@
     <string name="title_activity_alien_profile">AlienProfileActivity</string>
     <string name="title_activity_stories_flash">StoriesFlashActivity</string>
     <string name="section_format">Hello World from section: %1$d</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_mapastest">Map</string>
 </resources>

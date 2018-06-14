@@ -117,6 +117,12 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
+    private void goToMapActivitiesScreen(){
+        Intent intent = new Intent(this, MapsActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
+        startActivity(intent);
+    }
+
     public void logout() {
         ((StoriesApp) getApplicationContext()).userLoggedIn = null;
         LoginManager.getInstance().logOut();
@@ -165,7 +171,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_profile) {
             goToProfileScreen();
         } else if (id == R.id.nav_map_activity) {
-            Toast.makeText(app, "Map Activities", Toast.LENGTH_SHORT).show();
+            goToMapActivitiesScreen();
         } else if (id == R.id.nav_chat) {
             Toast.makeText(app, "Chat", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_invitations){

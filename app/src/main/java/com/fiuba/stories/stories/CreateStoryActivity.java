@@ -73,6 +73,7 @@ public class CreateStoryActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (selectedImage != null) {
+                    view.setVisibility(View.INVISIBLE);
                     /* ---------------- FIREBASE UPLOAD ---------------- */
 
                     final StorageReference fileReference = storageRef.child("images/"+selectedImage.getLastPathSegment());

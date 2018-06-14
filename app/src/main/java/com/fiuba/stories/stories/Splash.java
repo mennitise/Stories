@@ -32,7 +32,7 @@ public class Splash extends AppCompatActivity {
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_splash);
 
-        //AppServerRequest.sendTestRequest("a=1&b=2", new CallbackRequest());
+        AppServerRequest.upServer(new CallbackRequest());
 
         this.app = (StoriesApp) getApplicationContext();
 
@@ -57,27 +57,14 @@ public class Splash extends AppCompatActivity {
 
     class CallbackRequest extends HttpCallback {
 
-        ResponseObject resp;
-
         @Override
         public void onResponse() {
             try {
                 JsonObject objJson = new JsonParser().parse(getJSONObject("args").toString()).getAsJsonObject();
                 Log.e("RESPONSE: ", getJSONObject("args").toString());
-                resp = ResponseObject.hydrate(objJson);
-                Splash.this.runOnUiThread(new SetResults());
             } catch (Exception e) {
                 Log.e("TEST REQUEST CALLBACK", "Error");
                 e.printStackTrace();
-            }
-            Splash.this.runOnUiThread(new SetResults());
-        }
-
-        class SetResults implements Runnable {
-            @Override
-            public void run() {
-                String text = String.format("Value A = %s\nValue B = %s",resp.getValueA(), resp.getValueB());
-                Log.e("Response", text);
             }
         }
     }

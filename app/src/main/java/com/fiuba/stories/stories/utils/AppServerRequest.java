@@ -1,15 +1,9 @@
 package com.fiuba.stories.stories.utils;
 
-import android.net.wifi.hotspot2.pps.Credential;
 import android.util.Log;
-
 import com.fiuba.stories.stories.Post;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.Map;
-
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Credentials;
@@ -21,6 +15,7 @@ import okhttp3.RequestBody;
 public class AppServerRequest {
 
     private static final String BASE_URL = "https://radiant-gorge-17084.herokuapp.com";
+    private static final String PING = "/api/ping";
     private static final String USER_LOGIN = "/api/users/login";
     private static final String USER_SIGNUP = "/api/users/signup";
     private static final String PROFILE_INFO = "/api/profile";
@@ -28,6 +23,7 @@ public class AppServerRequest {
     private static final String FLASHSTORIES = "/api/flashstories";
     private static final String INVITATIONS = "/api/invitations";
     private static final String FRIENDS = "/api/friends";
+    private static final String COMMENTS = "/api/comments";
     private static final OkHttpClient client = new OkHttpClient();
     public static final MediaType JSON = MediaType.parse("application/json");
 
@@ -157,6 +153,24 @@ public class AppServerRequest {
         AppServerRequest.postWithAuth(BASE_URL + FLASHSTORIES, credential, username, callback, request);
     }
 
+    public static void putComment(String username, String token, String storyId, String comment, Callback callback){
+        JSONObject json = new JSONObject();
+        try {
+            json.put("comment", comment);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Log.d("JSON", json.toString());
+        String credential = Credentials.basic(username,token);
+        RequestBody request = RequestBody.create(AppServerRequest.JSON, json.toString());
+        AppServerRequest.putWithAuthAndStoryHeader(BASE_URL + COMMENTS, credential, username, storyId, callback, request);
+    }
+
+    public static void getComments(String username, String token, String storyId, Callback callback){
+        String credential = Credentials.basic(username, token);
+        AppServerRequest.getWithAuthAndStoryHeader(BASE_URL + COMMENTS, credential, username, storyId, callback);
+    }
+
     public static void getFlashStory(String username, String token, Callback callback){
         String credential = Credentials.basic(username, token);
         AppServerRequest.getWithAuth(BASE_URL + FLASHSTORIES, credential, username, callback);
@@ -191,6 +205,9 @@ public class AppServerRequest {
         AppServerRequest.getWithAuth(BASE_URL + FRIENDS, credential, username, callback);
     }
 
+    public static void upServer(Callback callback){
+        AppServerRequest.get(BASE_URL + PING,callback);
+    }
 
     //----------------------------------------------------------------------------------------------
 
@@ -235,6 +252,18 @@ public class AppServerRequest {
         call.enqueue(callback);
     }
 
+    public static void putWithAuthAndStoryHeader(String url, String credential, String username, String storyId, Callback callback, RequestBody body) {
+        Request request = new Request.Builder()
+                .url(url)
+                .put(body)
+                .header("Authorization", credential)
+                .header("username", username)
+                .header("story-id", storyId)
+                .build();
+        Call call = client.newCall(request);
+        call.enqueue(callback);
+    }
+
     public static void get(String url, Callback callback) {
         Request request = new Request.Builder()
                 .url(url)
@@ -250,6 +279,18 @@ public class AppServerRequest {
                 .get()
                 .header("Authorization", credential)
                 .header("username", username)
+                .build();
+        Call call = client.newCall(request);
+        call.enqueue(callback);
+    }
+
+    public static void getWithAuthAndStoryHeader(String url, String credential, String username, String storyID, Callback callback){
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .header("Authorization", credential)
+                .header("username", username)
+                .header("story-id", storyID)
                 .build();
         Call call = client.newCall(request);
         call.enqueue(callback);

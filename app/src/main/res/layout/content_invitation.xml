@@ -40,6 +40,7 @@
             android:layout_marginRight="10dp"
             android:layout_centerVertical="true"
             android:src="@drawable/baseline_done_white_18dp"
+            style="?android:attr/borderlessButtonStyle"
             />
 
     </RelativeLayout>
