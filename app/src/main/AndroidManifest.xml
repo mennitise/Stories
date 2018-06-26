@@ -84,7 +84,8 @@
         <activity
             android:name=".NoFriendActivity"
             android:label="@string/title_activity_no_friend"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
+        <activity android:name=".ChatFriendActivity"></activity>
     </application>
 
 </manifest>

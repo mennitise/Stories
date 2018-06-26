@@ -130,6 +130,12 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
+    public void goToChatScreen(){
+        Intent intent = new Intent(this, ChatFriendActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
+        startActivity(intent);
+    }
+
     public void logout() {
         ((StoriesApp) getApplicationContext()).userLoggedIn = null;
         LoginManager.getInstance().logOut();
@@ -180,7 +186,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_map_activity) {
             goToMapActivitiesScreen();
         } else if (id == R.id.nav_chat) {
-            Toast.makeText(app, "Chat", Toast.LENGTH_SHORT).show();
+            goToChatScreen();
         } else if (id == R.id.nav_invitations){
             goToInvitations();
         } else if (id == R.id.nav_flash_stories) {
