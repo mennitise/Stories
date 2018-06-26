@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.Address;
+import okhttp3.Callback;
 import okhttp3.internal.Util;
 
 public class PostDetailActivity extends AppCompatActivity {
@@ -109,6 +110,8 @@ public class PostDetailActivity extends AppCompatActivity {
 
         if (usernameAuthor != null){
             author.setText(usernameAuthor);
+        } else {
+            author.setVisibility(View.INVISIBLE);
         }
         author.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -127,13 +130,7 @@ public class PostDetailActivity extends AppCompatActivity {
         likes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(usernameAuthor.equals(app.userLoggedIn.getEmail())){
-                    Snackbar.make(view, "Your likes", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-                } else {
-                    Snackbar.make(view, "Author likes", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-                }
+                goToLikesScreen();
             }
         });
 
@@ -147,32 +144,28 @@ public class PostDetailActivity extends AppCompatActivity {
         like.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Like", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                AppServerRequest.putStoryReaction(app.userLoggedIn.getEmail(),app.userLoggedIn.token, id, "like", new CallbackRequestPutReaction(new SnackRunnable(view, "Like it"), new SnackRunnable(view,"Error, please try again.")));
             }
         });
 
         faceLike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Haha", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                AppServerRequest.putStoryReaction(app.userLoggedIn.getEmail(),app.userLoggedIn.token, id, "facelike", new CallbackRequestPutReaction(new SnackRunnable(view, "Haha!"), new SnackRunnable(view,"Error, please try again.")));
             }
         });
 
         dislike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Dislike", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                AppServerRequest.putStoryReaction(app.userLoggedIn.getEmail(),app.userLoggedIn.token, id, "dislike", new CallbackRequestPutReaction(new SnackRunnable(view, "Dislike it"), new SnackRunnable(view,"Error, please try again.")));
             }
         });
 
         faceDislike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Meh", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                AppServerRequest.putStoryReaction(app.userLoggedIn.getEmail(),app.userLoggedIn.token, id, "facedislike", new CallbackRequestPutReaction(new SnackRunnable(view, "Meh..."), new SnackRunnable(view,"Error, please try again.")));
             }
         });
 
@@ -201,29 +194,6 @@ public class PostDetailActivity extends AppCompatActivity {
         container.setLayoutManager(layoutManager);
     }
 
-    private ArrayList<JSONObject> getComments(){
-        ArrayList<JSONObject> result = new ArrayList<>();
-        JSONObject comment1 = new JSONObject();
-        JSONObject comment2 = new JSONObject();
-        JSONObject comment3 = new JSONObject();
-        try {
-            comment1.put("author", "Brad Pitt");
-            comment1.put("comment", "Excelent! I love this story!");
-            comment2.put("author", "Diego Maradona");
-            comment2.put("comment", "Ehhh... Yo pienso... Ehhhh... Lo... Ehhh... Mismo...");
-            comment3.put("author", "Guido Kaczka");
-            comment3.put("comment", "Noo! Pasame la repe!");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        result.add(comment1);
-        result.add(comment2);
-        result.add(comment3);
-
-        return result;
-    }
-
     private void goToProfileScreen() {
         Intent intent = new Intent(this, ProfileActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
@@ -238,6 +208,13 @@ public class PostDetailActivity extends AppCompatActivity {
                                                     util.getCallbackRequestGetAlienProfile(username, AlienProfileActivity.class, this, new ToastRunnable("401"), new ToastRunnable("400")));
     }
 
+    private void goToLikesScreen() {
+        Intent intent = new Intent(this, LikesActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
+        intent.putExtra(LikesActivity.STORY_ID, this.id);
+        startActivity(intent);
+    }
+
     public class ToastRunnable implements Runnable {
 
         String message;
@@ -249,6 +226,50 @@ public class PostDetailActivity extends AppCompatActivity {
         @Override
         public void run() {
             Toast.makeText(getBaseContext(), this.message, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public class SnackRunnable implements Runnable {
+
+        String message;
+        View view;
+
+        public SnackRunnable(View v,String message){
+            this.view = v;
+            this.message = message;
+        }
+
+        @Override
+        public void run() {
+            Snackbar.make(this.view, this.message, Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        }
+    }
+
+    public class CallbackRequestPutReaction extends HttpCallback {
+
+        Runnable callUI;
+        Runnable callErrorUI;
+
+        public CallbackRequestPutReaction(Runnable callUI, Runnable callErrorUI){
+            this.callUI = callUI;
+            this.callErrorUI = callErrorUI;
+        }
+
+        @Override
+        public void onResponse() {
+            try{
+                if (getHTTPResponse().code() == 200) {
+                    Log.d("HTTP RESPONSE: ", getHTTPResponse().toString());
+                    JSONObject jsonResponse = getJSONResponse();
+                    Log.d("RESPONSE: ", jsonResponse.toString());
+                    this.callUI.run();
+                } else {
+
+                }
+            } catch (Exception e) {
+                Log.e("TEST REQUEST CALLBACK", "Error");
+                e.printStackTrace();
+            }
         }
     }
 

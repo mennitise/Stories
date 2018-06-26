@@ -2,6 +2,7 @@ package com.fiuba.stories.stories.utils;
 
 import android.util.Log;
 import com.fiuba.stories.stories.Post;
+import com.fiuba.stories.stories.PostDetailActivity;
 import org.json.JSONException;
 import org.json.JSONObject;
 import okhttp3.Call;
@@ -24,6 +25,8 @@ public class AppServerRequest {
     private static final String INVITATIONS = "/api/invitations";
     private static final String FRIENDS = "/api/friends";
     private static final String COMMENTS = "/api/comments";
+    private static final String REACTIONS = "/api/reactions";
+    private static final String SEARCH = "/api/people";
     private static final OkHttpClient client = new OkHttpClient();
     public static final MediaType JSON = MediaType.parse("application/json");
 
@@ -130,9 +133,9 @@ public class AppServerRequest {
         AppServerRequest.postWithAuth(BASE_URL + STORIES, credential, username, callback, request);
     }
 
-    public static void getStory(String username, String token, Callback callback){
-        String credential = Credentials.basic(username, token);
-        AppServerRequest.getWithAuth(BASE_URL + STORIES, credential, username, callback);
+    public static void getUserStory(String username, String usernamelog, String token, Callback callback){
+        String credential = Credentials.basic(usernamelog, token);
+        AppServerRequest.getWithAuth(BASE_URL + STORIES + "/" + username, credential, username, callback);
     }
 
     public static void postFlashStory(String username, String token, Post story, Callback callback){
@@ -178,7 +181,21 @@ public class AppServerRequest {
 
     public static void getAlienStories(String alienUsername, String username, String token, Callback callback){
         String credential = Credentials.basic(username, token);
-        AppServerRequest.getWithAuth(BASE_URL + STORIES, credential, alienUsername, callback);
+        AppServerRequest.getWithAuth(BASE_URL + STORIES + "/" + alienUsername, credential, alienUsername, callback);
+    }
+
+    public static void postFriendInvitation(String username, String token, String friend, Callback callback){
+        JSONObject json = new JSONObject();
+        try {
+            json.put("username", username);
+            json.put("friend", friend);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Log.d("JSON", json.toString());
+        String credential = Credentials.basic(username,token);
+        RequestBody request = RequestBody.create(AppServerRequest.JSON, json.toString());
+        AppServerRequest.postWithAuth(BASE_URL + INVITATIONS, credential, username, callback, request);
     }
 
     public static void getFriendInvitations(String username, String token, Callback callback){
@@ -203,6 +220,22 @@ public class AppServerRequest {
     public static void getFriends(String username, String token, Callback callback){
         String credential = Credentials.basic(username, token);
         AppServerRequest.getWithAuth(BASE_URL + FRIENDS, credential, username, callback);
+    }
+
+    public static void getPeolpleSearch(String username, String token, String searching, Callback callback){
+        String credential = Credentials.basic(username, token);
+        AppServerRequest.getWithAuthAndSearchHeader(BASE_URL + SEARCH, credential, username, searching, callback);
+    }
+
+    public static void getStoryReactions(String username, String token, String storyId, Callback callback){
+        String credential = Credentials.basic(username, token);
+        AppServerRequest.getWithAuthAndStoryHeader(BASE_URL + REACTIONS, credential, username, storyId, callback);
+    }
+
+    public static void putStoryReaction(String username, String token, String storyId, String reaction, Callback callback) {
+        String credential = Credentials.basic(username, token);
+        RequestBody request = RequestBody.create(AppServerRequest.JSON, "");
+        AppServerRequest.putWithAuthAndStoryHeaderAndReaction(BASE_URL + REACTIONS, credential, username, storyId, reaction, callback, request);
     }
 
     public static void upServer(Callback callback){
@@ -259,6 +292,31 @@ public class AppServerRequest {
                 .header("Authorization", credential)
                 .header("username", username)
                 .header("story-id", storyId)
+                .build();
+        Call call = client.newCall(request);
+        call.enqueue(callback);
+    }
+
+    public static void putWithAuthAndStoryHeaderAndReaction(String url, String credential, String username, String storyId, String reaction, Callback callback, RequestBody body) {
+        Request request = new Request.Builder()
+                .url(url)
+                .put(body)
+                .header("Authorization", credential)
+                .header("username", username)
+                .header("story-id", storyId)
+                .header("reaction", reaction)
+                .build();
+        Call call = client.newCall(request);
+        call.enqueue(callback);
+    }
+
+    public static void getWithAuthAndSearchHeader(String url, String credential, String username, String searching, Callback callback){
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .header("Authorization", credential)
+                .header("username", username)
+                .header("searchedFor", searching)
                 .build();
         Call call = client.newCall(request);
         call.enqueue(callback);
@@ -323,6 +381,7 @@ public class AppServerRequest {
         }
         return json;
     }
+
     private static class RequestConstants {
 
         class Routes {

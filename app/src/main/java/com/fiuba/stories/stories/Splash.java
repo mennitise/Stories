@@ -39,7 +39,16 @@ public class Splash extends AppCompatActivity {
         // If the User are already logged with Facebook
         if(AccessToken.getCurrentAccessToken() != null) {
             Profile currentProfile = Profile.getCurrentProfile();
-            this.app.userLoggedIn = new User(currentProfile.getFirstName(), currentProfile.getLastName(),"", currentProfile.getProfilePictureUri(200,200).toString());
+            this.app.userLoggedIn = new User();
+            Log.d("CurrentProfile", currentProfile.toString());
+            Log.d("First name",currentProfile.getFirstName());
+            Log.d("Last name",currentProfile.getLastName());
+            Log.d("id",currentProfile.getId());
+            Log.d("fb token",AccessToken.getCurrentAccessToken().getToken());
+            this.app.userLoggedIn.setFirstName(currentProfile.getFirstName());
+            this.app.userLoggedIn.setLastName(currentProfile.getLastName());
+            this.app.userLoggedIn.setEmail(currentProfile.getId());
+            this.app.userLoggedIn.setCurrentToken(AccessToken.getCurrentAccessToken().getToken(), true);
         }
 
         new Handler().postDelayed(new Runnable(){
@@ -56,16 +65,8 @@ public class Splash extends AppCompatActivity {
     // ---------------------------------------------------------------------------------------------
 
     class CallbackRequest extends HttpCallback {
-
         @Override
         public void onResponse() {
-            try {
-                JsonObject objJson = new JsonParser().parse(getJSONObject("args").toString()).getAsJsonObject();
-                Log.e("RESPONSE: ", getJSONObject("args").toString());
-            } catch (Exception e) {
-                Log.e("TEST REQUEST CALLBACK", "Error");
-                e.printStackTrace();
-            }
         }
     }
 

@@ -79,6 +79,7 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
+        findViewById(R.id.action_search);
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -123,6 +124,12 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
+    public void goToSearchScreen(){
+        Intent intent = new Intent(this, SearchActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
+        startActivity(intent);
+    }
+
     public void logout() {
         ((StoriesApp) getApplicationContext()).userLoggedIn = null;
         LoginManager.getInstance().logOut();
@@ -154,8 +161,8 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.action_search) {
+            goToSearchScreen();
         }
 
         return super.onOptionsItemSelected(item);
@@ -277,7 +284,7 @@ public class MainActivity extends AppCompatActivity
             LinearLayoutManager layoutManager = new LinearLayoutManager(this.app);
             layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
             layoutManager.scrollToPosition(0);
-            container.setAdapter(new MyAdaptor(posts));
+            container.setAdapter(new MyAdaptor(posts, this.app));
             container.setLayoutManager(layoutManager);
         }
     }

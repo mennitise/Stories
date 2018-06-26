@@ -63,8 +63,6 @@ public class InvitationsViewHolder  extends RecyclerView.ViewHolder {
     }
 
     public class CallbackRequestAceptInvitation extends HttpCallback {
-        ArrayList<Post> posts;
-
         @Override
         public void onResponse() {
             try{

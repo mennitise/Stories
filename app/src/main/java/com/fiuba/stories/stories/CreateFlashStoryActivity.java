@@ -13,6 +13,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
@@ -37,6 +39,8 @@ public class CreateFlashStoryActivity extends AppCompatActivity {
 
     private EditText mDescription;
     private RadioGroup mPrivacity;
+    private LinearLayout all;
+    private ProgressBar loading;
 
     private String id;
     private String title;
@@ -63,6 +67,8 @@ public class CreateFlashStoryActivity extends AppCompatActivity {
             }
         });
 
+        all = findViewById(R.id.all_create_flash_story);
+        loading = findViewById(R.id.post_progress);
         mDescription = findViewById(R.id.description_create_post);
         mPrivacity = findViewById(R.id.radio_privacity);
 
@@ -71,6 +77,8 @@ public class CreateFlashStoryActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (selectedImage != null) {
+                    all.setVisibility(View.INVISIBLE);
+                    loading.setVisibility(View.VISIBLE);
                     /* ---------------- FIREBASE UPLOAD ---------------- */
 
                     final StorageReference fileReference = storageRef.child("images/"+selectedImage.getLastPathSegment());
