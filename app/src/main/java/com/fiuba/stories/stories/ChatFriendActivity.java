@@ -1,5 +1,6 @@
 package com.fiuba.stories.stories;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -21,24 +22,29 @@ import com.google.firebase.database.ServerValue;
 
 public class ChatFriendActivity extends AppCompatActivity {
 
+    public static final String USERNAME_RECEPTOR = "usernameReceptor";
+
     private ImageView friendImage;
     private TextView friendName;
     private RecyclerView recyclerView;
     private EditText message;
     private Button send;
+    private String receptor;
 
     private MessageAdaptor adaptor;
 
     private StoriesApp app;
     private FirebaseDatabase db;
     private DatabaseReference dbRef;
+    private DatabaseReference dbRefReceptor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_friend);
-
         this.app = (StoriesApp) getApplicationContext();
+        Intent intent = getIntent();
+        receptor = intent.getStringExtra(USERNAME_RECEPTOR);
 
         this.friendImage = findViewById(R.id.friend_image);
         this.friendName = findViewById(R.id.friend_name);
@@ -46,8 +52,11 @@ public class ChatFriendActivity extends AppCompatActivity {
         this.message = findViewById(R.id.message);
         this.send = findViewById(R.id.send);
 
+
+
         this.db = FirebaseDatabase.getInstance();
-        this.dbRef = this.db.getReference("chat"); // Name where save messages -> should be usernames;
+        this.dbRef = this.db.getReference("chat/"+this.app.userLoggedIn.getEmail()+"_"+receptor); // Name where save messages -> should be usernames;
+        this.dbRefReceptor = this.db.getReference("chat/"+receptor+"_"+this.app.userLoggedIn.getEmail());
 
         this.adaptor = new MessageAdaptor(this);
         LinearLayoutManager l = new LinearLayoutManager(this);
@@ -58,6 +67,7 @@ public class ChatFriendActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 dbRef.push().setValue(new MessageSend(app.userLoggedIn.getEmail(), message.getText().toString(), ServerValue.TIMESTAMP));
+                dbRefReceptor.push().setValue(new MessageSend(app.userLoggedIn.getEmail(), message.getText().toString(), ServerValue.TIMESTAMP));
                 message.setText("");
             }
         });

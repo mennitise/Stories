@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void goToChatScreen(){
-        Intent intent = new Intent(this, ChatFriendActivity.class);
+        Intent intent = new Intent(this, ChatSelectActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
         startActivity(intent);
     }
