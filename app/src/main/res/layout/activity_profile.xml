@@ -13,6 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/app_bar_height"
         android:fitsSystemWindows="true"
+        android:background="@color/primaryRed"
 
         android:theme="@style/AppTheme.AppBarOverlay">
 
