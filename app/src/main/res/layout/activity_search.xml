@@ -43,7 +43,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 style="?android:attr/borderlessButtonStyle"
-                android:src="@drawable/baseline_search_white_18dp"
+                android:src="@drawable/search"
                 />
         </LinearLayout>
 

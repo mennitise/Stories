@@ -37,7 +37,7 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
         descriptionPost = (TextView) itemView.findViewById(R.id.description_post);
         imagePost = (ImageView) itemView.findViewById(R.id.card_image);
         button2 = (ImageButton) itemView.findViewById(R.id.like_post_button);
-        button3 = (ImageButton) itemView.findViewById(R.id.dislike_post_button);
+        //button3 = (ImageButton) itemView.findViewById(R.id.dislike_post_button);
 
 
         button2.setOnClickListener(new View.OnClickListener() {
@@ -47,12 +47,12 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
             }
         });
 
-        button3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AppServerRequest.putStoryReaction(app.userLoggedIn.getEmail(),app.userLoggedIn.token, currentPost.id, "dislike", new MyViewHolder.CallbackRequestPutReaction(new MyViewHolder.SnackRunnable(v, "Disike it"), new MyViewHolder.SnackRunnable(v,"Error, please try again.")));
-            }
-        });
+//        button3.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                AppServerRequest.putStoryReaction(app.userLoggedIn.getEmail(),app.userLoggedIn.token, currentPost.id, "dislike", new MyViewHolder.CallbackRequestPutReaction(new MyViewHolder.SnackRunnable(v, "Disike it"), new MyViewHolder.SnackRunnable(v,"Error, please try again.")));
+//            }
+//        });
 
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override

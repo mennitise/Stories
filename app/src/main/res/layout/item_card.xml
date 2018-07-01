@@ -20,17 +20,17 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="282dp">
 
         <ImageView
             android:id="@+id/card_image"
             android:layout_width="match_parent"
             android:layout_height="@dimen/card_image_height"
-            android:scaleType="centerCrop"
-            tools:src="@drawable/stories_no_image"
             android:layout_margin="5dp"
+            android:contentDescription="postImage"
+            android:scaleType="centerCrop"
 
-            android:contentDescription="postImage" />
+            tools:src="@drawable/stories_no_image" />
 
         <TextView
             android:id="@+id/title_post"
@@ -38,43 +38,41 @@
             android:layout_height="@dimen/card_title_height"
             android:layout_alignBottom="@+id/card_image"
             android:layout_marginLeft="@dimen/md_keylines"
-            tools:text="@string/item_title"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title"
             android:textColor="@color/white"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+            tools:text="@string/item_title" />
 
         <TextView
             android:id="@+id/description_post"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/card_image"
-            android:layout_marginLeft="@dimen/md_keylines"
-            android:layout_marginTop="@dimen/md_keylines"
-            android:layout_marginBottom="@dimen/md_keylines"
-            android:layout_marginRight="@dimen/md_keylines"
-            android:textColor="@color/white"
-            tools:text="@string/item_desc"
+            android:layout_width="280dp"
+            android:layout_height="51dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignStart="@+id/title_post"
             android:ellipsize="end"
             android:singleLine="true"
-            android:textSize="@dimen/article_subheading" />
+            android:textColor="@color/white"
+            android:textSize="@dimen/article_subheading"
+            tools:text="@string/item_desc" />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginEnd="10dp">
+            android:layout_alignParentEnd="true">
+
             <ImageButton
                 android:id="@+id/like_post_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:srcCompat="@drawable/baseline_thumb_up_white_1_24dp"
-                style="?android:attr/borderlessButtonStyle" />
-            <ImageButton
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="59dp"
+                android:layout_height="match_parent"
+                app:srcCompat="@drawable/like" />
+            <!--<ImageButton
                 android:id="@+id/dislike_post_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/baseline_thumb_down_white_1_24dp"
+                app:srcCompat="@drawable/not_like"
                 style="?android:attr/borderlessButtonStyle" />
+            -->
 
         </LinearLayout>
 

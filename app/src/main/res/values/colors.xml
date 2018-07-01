@@ -2,9 +2,10 @@
 <resources>
     <color name="primaryRed">#A67B7B</color>
     <color name="primaryBlue">#7B7BA6</color>
-    <color name="colorPrimary">#fefefe</color>
+    <color name="colorPrimary">#FFFFFF</color>
     <color name="colorPrimaryDark">#FFFFFF</color>
     <color name="colorAccent">#FF4081</color>
     <color name="white">#000000</color>
+    <color name="dark">#000000</color>
     <color name="black_overlay">#66000000</color>
 </resources>

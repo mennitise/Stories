@@ -32,8 +32,10 @@ import java.io.IOException;
 public class CreateStoryActivity extends AppCompatActivity {
 
     public static final int GET_FROM_GALLERY = 3;
+    static final int REQUEST_IMAGE_CAPTURE = 1;
     StoriesApp app;
     private ImageButton mediaUpload;
+    private ImageButton takePhoto;
     private FirebaseStorage storage;
     private StorageReference storageRef;
 
@@ -59,6 +61,17 @@ public class CreateStoryActivity extends AppCompatActivity {
         selectedImage = null;
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
+
+        takePhoto = findViewById(R.id.take_media);
+        takePhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                }
+            }
+        });
 
         mediaUpload = findViewById(R.id.upload_media);
         mediaUpload.setOnClickListener(new View.OnClickListener() {
@@ -138,11 +151,19 @@ public class CreateStoryActivity extends AppCompatActivity {
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
                 mediaUpload.setImageBitmap(bitmap);
+                takePhoto.setImageResource(android.R.color.transparent);
+
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            takePhoto.setImageBitmap(imageBitmap);
+            mediaUpload.setImageResource(android.R.color.transparent);
         }
     }
 
