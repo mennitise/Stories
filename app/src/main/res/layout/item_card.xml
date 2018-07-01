@@ -57,17 +57,6 @@
             android:singleLine="true"
             android:textSize="@dimen/article_subheading" />
 
-        <Button
-            android:id="@+id/owner_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:paddingBottom="@dimen/md_keylines"
-            android:layout_below="@+id/description_post"
-            style="?android:attr/borderlessButtonStyle"
-            android:textColor="@color/white"
-            android:text="Owner Post" />
-
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

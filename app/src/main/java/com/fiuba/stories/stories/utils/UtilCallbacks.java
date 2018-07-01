@@ -1,5 +1,6 @@
 package com.fiuba.stories.stories.utils;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
@@ -8,6 +9,7 @@ import android.util.Log;
 import com.fiuba.stories.stories.AlienProfileActivity;
 import com.fiuba.stories.stories.Login;
 import com.fiuba.stories.stories.MainActivity;
+import com.fiuba.stories.stories.NoFriendActivity;
 import com.fiuba.stories.stories.PostDetailActivity;
 import com.fiuba.stories.stories.RegisterActivity;
 import com.fiuba.stories.stories.StoriesApp;
@@ -30,8 +32,20 @@ public class UtilCallbacks{
         return new CallbackRequestRegister(vUsername, app, registerActivity, mainActivityClass, vRunner200, vRunner401, vRunner400);
     }
 
-    public CallbackRequestGetAlienProfile getCallbackRequestGetAlienProfile(StoriesApp app, String username, Class<AlienProfileActivity> profileActivityClass, PostDetailActivity postDetailActivity, Runnable vRunner401, Runnable vRunner400){
-        return new CallbackRequestGetAlienProfile(app, username, profileActivityClass, postDetailActivity, vRunner401, vRunner400);
+    public CallbackRequestGetAlienProfile getCallbackRequestGetAlienProfile(String username, Class<AlienProfileActivity> profileActivityClass, PostDetailActivity postDetailActivity, Runnable vRunner401, Runnable vRunner400){
+        return new CallbackRequestGetAlienProfile(username, profileActivityClass, postDetailActivity, vRunner401, vRunner400);
+    }
+
+    public CallbackRequestGetAlienProfileInvitation getCallbackRequestGetAlienProfileInvitation(String username, Class<AlienProfileActivity> profileActivityClass, Context activity, Runnable vRunner401, Runnable vRunner400){
+        return new CallbackRequestGetAlienProfileInvitation(username, profileActivityClass, activity, vRunner401, vRunner400);
+    }
+
+    public CallbackRequestGetNoFriendProfile getCallbackRequestGetNoFriendProfile(String username, Class<NoFriendActivity> profileActivityClass, Context activity, Runnable vRunner401, Runnable vRunner400){
+        return new CallbackRequestGetNoFriendProfile(username, profileActivityClass, activity, vRunner401, vRunner400);
+    }
+
+    public CallbackRequestRegisterFacebook getCallbackRequestRegisterFacebook(){
+        return new CallbackRequestRegisterFacebook();
     }
 
     public class CallbackRequestRegister extends HttpCallback {
@@ -74,6 +88,45 @@ public class UtilCallbacks{
                     // The registration fails
                     new Handler(Looper.getMainLooper()).post(this.runner400);
                 }
+            } catch (Exception e) {
+                Log.e("TEST REQUEST CALLBACK", "Error");
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public class CallbackRequestRegisterFacebook extends HttpCallback {
+        String username;
+        StoriesApp app;
+        RegisterActivity registerActivity;
+        Class<MainActivity> mainActivityClass;
+        public CallbackRequestRegisterFacebook() {
+        }
+
+        @Override
+        public void onResponse() {
+            try {
+                Log.d("HTTP RESPONSE: ", getHTTPResponse().toString());
+                Log.d("HTTP RESPONSE: ", "code = " + getHTTPResponse().code());
+                /*
+                if (getHTTPResponse().code() == 200) {
+                    Log.d("RESPONSE: ", getJSONResponse().toString());
+
+                    new Handler(Looper.getMainLooper()).post(this.runner200);
+                    String token = jsonResponse.get("Token").toString();
+                    User currentUser = new User("","",username,"");
+                    currentUser.setCurrentToken(token, false);
+                    currentUser.LOG_USER();
+                    this.app.userLoggedIn = currentUser;
+                    AppServerRequest.getProfileInformation(this.username, token, new UtilCallbacks.CallbackRequestGetProfileFromRegister(this.app, this.registerActivity, this.mainActivityClass, this.runner401, this.runner400));
+                } else if (getHTTPResponse().code() == 401){
+                    // The user is already registered
+                    new Handler(Looper.getMainLooper()).post(this.runner401);
+                } else {
+                    // The registration fails
+                    new Handler(Looper.getMainLooper()).post(this.runner400);
+                }
+                */
             } catch (Exception e) {
                 Log.e("TEST REQUEST CALLBACK", "Error");
                 e.printStackTrace();
@@ -262,14 +315,12 @@ public class UtilCallbacks{
 
     public class CallbackRequestGetAlienProfile extends HttpCallback {
         String username;
-        StoriesApp app;
         PostDetailActivity postDetailActivity;
         Class<AlienProfileActivity> profileActivityClass;
         Runnable runner401;
         Runnable runner400;
 
-        public CallbackRequestGetAlienProfile(StoriesApp app, String username, Class<AlienProfileActivity> profileActivityClass, PostDetailActivity postDetailActivity, Runnable vRunner401, Runnable vRunner400) {
-            this.app = app;
+        public CallbackRequestGetAlienProfile(String username, Class<AlienProfileActivity> profileActivityClass, PostDetailActivity postDetailActivity, Runnable vRunner401, Runnable vRunner400) {
             this.username = username;
             this.profileActivityClass = profileActivityClass;
             this.postDetailActivity = postDetailActivity;
@@ -331,6 +382,158 @@ public class UtilCallbacks{
                 Log.d("Debug", "GO TO ALIEN PROFILE");
                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
                 this.postDetailActivity.startActivity(intent);
+            } catch (Exception e) {
+                Log.e("TEST REQUEST CALLBACK", "Error");
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public class CallbackRequestGetAlienProfileInvitation extends HttpCallback {
+        String username;
+        Context activity;
+        Class<AlienProfileActivity> profileActivityClass;
+        Runnable runner401;
+        Runnable runner400;
+
+        public CallbackRequestGetAlienProfileInvitation(String username, Class<AlienProfileActivity> profileActivityClass, Context activity, Runnable vRunner401, Runnable vRunner400) {
+            this.username = username;
+            this.profileActivityClass = profileActivityClass;
+            this.activity = activity;
+            this.runner401 = vRunner401;
+            this.runner400 = vRunner400;
+        }
+
+        @Override
+        public void onResponse() {
+            try {
+                Log.d("HTTP RESPONSE: ", getHTTPResponse().toString());
+                JSONObject jsonResponse = getJSONResponse();
+                Intent intent = new Intent(this.activity, this.profileActivityClass);
+                if (getHTTPResponse().code() == 200) {
+                    Log.d("RESPONSE: ", jsonResponse.toString());
+                    try{
+                        intent.putExtra(AlienProfileActivity.FIRST_NAME, jsonResponse.get("firstname").toString());
+                    } catch (Exception e){
+                        Log.e("TEST REQUEST CALLBACK", "Error");
+                        e.printStackTrace();
+                        intent.putExtra(AlienProfileActivity.FIRST_NAME, "");
+                    }
+                    try {
+                        intent.putExtra(AlienProfileActivity.LAST_NAME, jsonResponse.get("lastname").toString());
+                    } catch (Exception e){
+                        Log.e("TEST REQUEST CALLBACK", "Error");
+                        e.printStackTrace();
+                        intent.putExtra(AlienProfileActivity.LAST_NAME, "");
+                    }
+                    intent.putExtra(AlienProfileActivity.EMAIL, this.username);
+                    try{
+                        intent.putExtra(AlienProfileActivity.BIRTHDAY, jsonResponse.get("birthday").toString());
+                    } catch (Exception e){
+                        Log.e("TEST REQUEST CALLBACK", "Error");
+                        e.printStackTrace();
+                        intent.putExtra(AlienProfileActivity.BIRTHDAY, "");
+                    }
+                    try{
+                        intent.putExtra(AlienProfileActivity.GENDER, jsonResponse.get("gender").toString());
+                    } catch (Exception e){
+                        Log.e("TEST REQUEST CALLBACK", "Error");
+                        e.printStackTrace();
+                        intent.putExtra(AlienProfileActivity.GENDER, "");
+                    }
+                    try{
+                        intent.putExtra(AlienProfileActivity.AGE, jsonResponse.get("age").toString());
+                    } catch (Exception e){
+                        Log.e("TEST REQUEST CALLBACK", "Error");
+                        e.printStackTrace();
+                        intent.putExtra(AlienProfileActivity.AGE, "");
+                    }
+                } else if (getHTTPResponse().code() == 401){
+                    // Problem obtains the profile data
+                    new Handler(Looper.getMainLooper()).post(this.runner401);
+                } else if (getHTTPResponse().code() == 400){
+                    // The get profile fails
+                    new Handler(Looper.getMainLooper()).post(this.runner400);
+                }
+                Log.d("Debug", "GO TO ALIEN PROFILE");
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
+                this.activity.startActivity(intent);
+            } catch (Exception e) {
+                Log.e("TEST REQUEST CALLBACK", "Error");
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public class CallbackRequestGetNoFriendProfile extends HttpCallback {
+        String username;
+        Context activity;
+        Class<NoFriendActivity> noFriendProfileActivityClass;
+        Runnable runner401;
+        Runnable runner400;
+
+        public CallbackRequestGetNoFriendProfile(String username, Class<NoFriendActivity> noFriendProfileActivityClass, Context activity, Runnable vRunner401, Runnable vRunner400) {
+            this.username = username;
+            this.noFriendProfileActivityClass = noFriendProfileActivityClass;
+            this.activity = activity;
+            this.runner401 = vRunner401;
+            this.runner400 = vRunner400;
+        }
+
+        @Override
+        public void onResponse() {
+            try {
+                Log.d("HTTP RESPONSE: ", getHTTPResponse().toString());
+                JSONObject jsonResponse = getJSONResponse();
+                Intent intent = new Intent(this.activity, this.noFriendProfileActivityClass);
+                if (getHTTPResponse().code() == 200) {
+                    Log.d("RESPONSE: ", jsonResponse.toString());
+                    try{
+                        intent.putExtra(NoFriendActivity.FIRST_NAME, jsonResponse.get("firstname").toString());
+                    } catch (Exception e){
+                        Log.e("TEST REQUEST CALLBACK", "Error");
+                        e.printStackTrace();
+                        intent.putExtra(NoFriendActivity.FIRST_NAME, "");
+                    }
+                    try {
+                        intent.putExtra(NoFriendActivity.LAST_NAME, jsonResponse.get("lastname").toString());
+                    } catch (Exception e){
+                        Log.e("TEST REQUEST CALLBACK", "Error");
+                        e.printStackTrace();
+                        intent.putExtra(NoFriendActivity.LAST_NAME, "");
+                    }
+                    intent.putExtra(NoFriendActivity.EMAIL, this.username);
+                    try{
+                        intent.putExtra(NoFriendActivity.BIRTHDAY, jsonResponse.get("birthday").toString());
+                    } catch (Exception e){
+                        Log.e("TEST REQUEST CALLBACK", "Error");
+                        e.printStackTrace();
+                        intent.putExtra(NoFriendActivity.BIRTHDAY, "");
+                    }
+                    try{
+                        intent.putExtra(NoFriendActivity.GENDER, jsonResponse.get("gender").toString());
+                    } catch (Exception e){
+                        Log.e("TEST REQUEST CALLBACK", "Error");
+                        e.printStackTrace();
+                        intent.putExtra(NoFriendActivity.GENDER, "");
+                    }
+                    try{
+                        intent.putExtra(NoFriendActivity.AGE, jsonResponse.get("age").toString());
+                    } catch (Exception e){
+                        Log.e("TEST REQUEST CALLBACK", "Error");
+                        e.printStackTrace();
+                        intent.putExtra(NoFriendActivity.AGE, "");
+                    }
+                } else if (getHTTPResponse().code() == 401){
+                    // Problem obtains the profile data
+                    new Handler(Looper.getMainLooper()).post(this.runner401);
+                } else if (getHTTPResponse().code() == 400){
+                    // The get profile fails
+                    new Handler(Looper.getMainLooper()).post(this.runner400);
+                }
+                Log.d("Debug", "GO TO NO FRIEND PROFILE");
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
+                this.activity.startActivity(intent);
             } catch (Exception e) {
                 Log.e("TEST REQUEST CALLBACK", "Error");
                 e.printStackTrace();

@@ -20,7 +20,7 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/user_invitation"
+            android:id="@+id/user_reaction"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/md_keylines"
@@ -31,15 +31,40 @@
             tools:text="@string/item_title"
             android:textColor="@color/white"
             android:textAppearance="@style/TextAppearance.AppCompat.Title" />
-
         <ImageButton
-            android:id="@+id/acept_invitation"
+            android:id="@+id/like_reaction"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_marginRight="10dp"
             android:layout_centerVertical="true"
-            android:src="@drawable/baseline_done_white_18dp"
+            android:src="@drawable/like"
+            style="?android:attr/borderlessButtonStyle"
+            />
+        <ImageButton
+            android:id="@+id/like_face_reaction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/like_face"
+            style="?android:attr/borderlessButtonStyle"
+            />
+        <ImageButton
+            android:id="@+id/dislike_reaction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/not_like"
+            style="?android:attr/borderlessButtonStyle"
+            />
+        <ImageButton
+            android:id="@+id/dislike_face_reaction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/not_like_face"
             style="?android:attr/borderlessButtonStyle"
             />
 

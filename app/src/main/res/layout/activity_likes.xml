@@ -18,10 +18,10 @@
             android:textStyle="bold"
             android:textColor="@color/white"
             android:textSize="20dp"
-            android:text="Friend Invitations"/>
+            android:text="Reactions"/>
 
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/invitations_view"
+            android:id="@+id/likes_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </LinearLayout>

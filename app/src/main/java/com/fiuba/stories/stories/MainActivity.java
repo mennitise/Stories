@@ -79,6 +79,7 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
+        findViewById(R.id.action_search);
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -117,6 +118,24 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
+    private void goToMapActivitiesScreen(){
+        Intent intent = new Intent(this, MapsActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
+        startActivity(intent);
+    }
+
+    public void goToSearchScreen(){
+        Intent intent = new Intent(this, SearchActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
+        startActivity(intent);
+    }
+
+    public void goToChatScreen(){
+        Intent intent = new Intent(this, ChatSelectActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
+        startActivity(intent);
+    }
+
     public void logout() {
         ((StoriesApp) getApplicationContext()).userLoggedIn = null;
         LoginManager.getInstance().logOut();
@@ -148,8 +167,8 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.action_search) {
+            goToSearchScreen();
         }
 
         return super.onOptionsItemSelected(item);
@@ -165,9 +184,9 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_profile) {
             goToProfileScreen();
         } else if (id == R.id.nav_map_activity) {
-            Toast.makeText(app, "Map Activities", Toast.LENGTH_SHORT).show();
+            goToMapActivitiesScreen();
         } else if (id == R.id.nav_chat) {
-            Toast.makeText(app, "Chat", Toast.LENGTH_SHORT).show();
+            goToChatScreen();
         } else if (id == R.id.nav_invitations){
             goToInvitations();
         } else if (id == R.id.nav_flash_stories) {
@@ -271,7 +290,7 @@ public class MainActivity extends AppCompatActivity
             LinearLayoutManager layoutManager = new LinearLayoutManager(this.app);
             layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
             layoutManager.scrollToPosition(0);
-            container.setAdapter(new MyAdaptor(posts));
+            container.setAdapter(new MyAdaptor(posts, this.app));
             container.setLayoutManager(layoutManager);
         }
     }

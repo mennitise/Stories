@@ -12,14 +12,17 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.fiuba.stories.stories.utils.AppServerRequest;
+import com.fiuba.stories.stories.utils.HttpCallback;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import org.json.JSONObject;
+
 public class MyViewHolder extends RecyclerView.ViewHolder {
 
-
-
     public Post currentPost;
+    StoriesApp app;
     TextView titlePost;
     TextView descriptionPost;
     ImageView imagePost;
@@ -33,28 +36,21 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
         titlePost = (TextView) itemView.findViewById(R.id.title_post);
         descriptionPost = (TextView) itemView.findViewById(R.id.description_post);
         imagePost = (ImageView) itemView.findViewById(R.id.card_image);
-        button1 = (Button) itemView.findViewById(R.id.owner_button);
         button2 = (ImageButton) itemView.findViewById(R.id.like_post_button);
         button3 = (ImageButton) itemView.findViewById(R.id.dislike_post_button);
 
 
-
-        button1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Snackbar.make(v, "Stories App", Snackbar.LENGTH_LONG).show();
-            }
-        });
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                AppServerRequest.putStoryReaction(app.userLoggedIn.getEmail(),app.userLoggedIn.token, currentPost.id, "like", new MyViewHolder.CallbackRequestPutReaction(new MyViewHolder.SnackRunnable(v, "Like it"), new MyViewHolder.SnackRunnable(v,"Error, please try again.")));
             }
         });
+
         button3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                AppServerRequest.putStoryReaction(app.userLoggedIn.getEmail(),app.userLoggedIn.token, currentPost.id, "dislike", new MyViewHolder.CallbackRequestPutReaction(new MyViewHolder.SnackRunnable(v, "Disike it"), new MyViewHolder.SnackRunnable(v,"Error, please try again.")));
             }
         });
 
@@ -71,10 +67,52 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
                 intent.putExtra(PostDetailActivity.DESCRIPTION_POST, currentPost.getDescription());
                 intent.putExtra(PostDetailActivity.IMAGE_POST, currentPost.getImagePost());
                 intent.putExtra(PostDetailActivity.URL_IMAGE_POST, currentPost.getUrlImage());
-
-
                 v.getContext().startActivity(intent);
             }
         });
+    }
+
+    public class SnackRunnable implements Runnable {
+
+        String message;
+        View view;
+
+        public SnackRunnable(View v,String message){
+            this.view = v;
+            this.message = message;
+        }
+
+        @Override
+        public void run() {
+            Snackbar.make(this.view, this.message, Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        }
+    }
+
+    public class CallbackRequestPutReaction extends HttpCallback {
+
+        Runnable callUI;
+        Runnable callErrorUI;
+
+        public CallbackRequestPutReaction(Runnable callUI, Runnable callErrorUI){
+            this.callUI = callUI;
+            this.callErrorUI = callErrorUI;
+        }
+
+        @Override
+        public void onResponse() {
+            try{
+                if (getHTTPResponse().code() == 200) {
+                    Log.d("HTTP RESPONSE: ", getHTTPResponse().toString());
+                    JSONObject jsonResponse = getJSONResponse();
+                    Log.d("RESPONSE: ", jsonResponse.toString());
+                    this.callUI.run();
+                } else {
+
+                }
+            } catch (Exception e) {
+                Log.e("TEST REQUEST CALLBACK", "Error");
+                e.printStackTrace();
+            }
+        }
     }
 }

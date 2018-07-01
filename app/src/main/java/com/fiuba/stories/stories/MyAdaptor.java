@@ -16,9 +16,11 @@ import java.util.List;
 public class MyAdaptor extends RecyclerView.Adapter<MyViewHolder> {
     List<Post> posts;
     FirebaseStorage storage;
+    StoriesApp app;
 
-    public MyAdaptor(List<Post> posts) {
+    public MyAdaptor(List<Post> posts, StoriesApp app) {
         this.posts = posts;
+        this.app = app;
     }
 
     @Override
@@ -47,6 +49,7 @@ public class MyAdaptor extends RecyclerView.Adapter<MyViewHolder> {
         holder.descriptionPost.setText(posts.get(position).getDescription());
         holder.imagePost.setImageResource(posts.get(position).getImagePost());
         holder.currentPost = posts.get(position);
+        holder.app = app;
     }
 
     @Override

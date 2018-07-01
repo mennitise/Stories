@@ -50,6 +50,7 @@ import com.fiuba.stories.stories.utils.HttpCallback;
 import com.fiuba.stories.stories.utils.UtilCallbacks;
 import com.google.gson.JsonObject;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.security.MessageDigest;
@@ -119,15 +120,43 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
             public void onSuccess(LoginResult loginResult) {
                 this.fbToken = loginResult.getAccessToken().getToken();
                 //User.registerFacebookUser();
-                Log.d("FB RESULT: ",loginResult.toString());
                 GraphRequest request = GraphRequest.newMeRequest(
                         loginResult.getAccessToken(),
                         new GraphRequest.GraphJSONObjectCallback() {
                             @Override
                             public void onCompleted(JSONObject object, GraphResponse response) {
-                                //response.
                                 Log.d("USER FB:", response.toString());
-                                ((StoriesApp) getApplicationContext()).userLoggedIn = new User("sebatian","Menniti","","");
+                                JSONObject graphResponse = response.getJSONObject();
+                                Log.d("json:", graphResponse.toString());
+                                Log.d("FB RESULT: ",fbToken.toString());
+                                ((StoriesApp) getApplicationContext()).userLoggedIn = new User();
+                                try {
+                                    ((StoriesApp) getApplicationContext()).userLoggedIn.setFirstName(graphResponse.getString("first_name"));
+                                    ((StoriesApp) getApplicationContext()).userLoggedIn.setLastName(graphResponse.getString("last_name"));
+                                    ((StoriesApp) getApplicationContext()).userLoggedIn.setBirthday(graphResponse.getString("birthday"));
+                                    ((StoriesApp) getApplicationContext()).userLoggedIn.setEmail(graphResponse.getString("email"));
+                                    ((StoriesApp) getApplicationContext()).userLoggedIn.setCurrentToken(fbToken.toString(),true);
+
+                                    /*
+
+                                    ((StoriesApp) getApplicationContext()).userLoggedIn.setAge();
+                                    ((StoriesApp) getApplicationContext()).userLoggedIn.setGender();
+
+                                    */
+                                    UtilCallbacks util = new UtilCallbacks();
+                                    // String firstName, String lastName, String email, String birthday, String age, String gender, String fbToken, Callback callback
+                                    AppServerRequest.registerFacebookUser(  graphResponse.getString("first_name"),
+                                                                            graphResponse.getString("last_name"),
+                                                                            graphResponse.getString("email"),
+                                                                            graphResponse.getString("birthday"),
+                                                                            "99",
+                                                                            "male",
+                                                                            fbToken.toString(),
+                                                                            util.getCallbackRequestRegisterFacebook());
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
                                 goMainScreen();
                             }
                         });

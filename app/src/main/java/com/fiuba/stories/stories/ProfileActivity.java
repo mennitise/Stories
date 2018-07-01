@@ -69,7 +69,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void requestProfileMainContent(){
-        AppServerRequest.getStory(this.app.userLoggedIn.email, this.app.userLoggedIn.token, new CallbackRequestGetStory());
+        AppServerRequest.getUserStory(this.app.userLoggedIn.email, this.app.userLoggedIn.email, this.app.userLoggedIn.token, new CallbackRequestGetStory());
     }
 
     public class CallbackRequestGetStory extends HttpCallback {
@@ -84,7 +84,7 @@ public class ProfileActivity extends AppCompatActivity {
                 if (getHTTPResponse().code() == 200) {
                     Log.d("RESPONSE: ", jsonResponse.toString());
                     posts = new ArrayList<Post>();
-                    JSONArray stories = (JSONArray) jsonResponse.get("feedStories"); // Array of posts
+                    JSONArray stories = (JSONArray) jsonResponse.get("userStories"); // Array of posts
                     for(int i = 0; i < stories.length(); ++i){
                         JSONObject story = stories.getJSONObject(i);
                         String username = story.getString("username");
@@ -158,7 +158,7 @@ public class ProfileActivity extends AppCompatActivity {
             LinearLayoutManager layoutManager = new LinearLayoutManager(this.app);
             layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
             layoutManager.scrollToPosition(0);
-            container.setAdapter(new MyAdaptor(posts));
+            container.setAdapter(new MyAdaptor(posts, this.app));
             container.setLayoutManager(layoutManager);
         }
     }

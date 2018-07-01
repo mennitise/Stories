@@ -13,6 +13,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
@@ -38,6 +40,8 @@ public class CreateStoryActivity extends AppCompatActivity {
     private EditText mTitle;
     private EditText mDescription;
     private RadioGroup mPrivacity;
+    private LinearLayout all;
+    private ProgressBar loading;
 
     private String id;
     private String title;
@@ -64,6 +68,8 @@ public class CreateStoryActivity extends AppCompatActivity {
             }
         });
 
+        all = findViewById(R.id.all_create_story);
+        loading = findViewById(R.id.post_progress);
         mTitle = findViewById(R.id.title_create_post);
         mDescription = findViewById(R.id.description_create_post);
         mPrivacity = findViewById(R.id.radio_privacity);
@@ -73,6 +79,8 @@ public class CreateStoryActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (selectedImage != null) {
+                    all.setVisibility(View.INVISIBLE);
+                    loading.setVisibility(View.VISIBLE);
                     /* ---------------- FIREBASE UPLOAD ---------------- */
 
                     final StorageReference fileReference = storageRef.child("images/"+selectedImage.getLastPathSegment());

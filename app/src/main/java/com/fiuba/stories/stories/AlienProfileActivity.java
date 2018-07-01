@@ -75,7 +75,7 @@ public class AlienProfileActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Add to your friends", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "Go to Chat", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
@@ -97,7 +97,7 @@ public class AlienProfileActivity extends AppCompatActivity {
                 if (getHTTPResponse().code() == 200) {
                     Log.d("RESPONSE: ", jsonResponse.toString());
                     posts = new ArrayList<Post>();
-                    JSONArray stories = (JSONArray) jsonResponse.get("feedStories"); // Array of posts
+                    JSONArray stories = (JSONArray) jsonResponse.get("userStories"); // Array of posts
                     for(int i = 0; i < stories.length(); ++i){
                         JSONObject story = stories.getJSONObject(i);
                         String username = story.getString("username");
@@ -165,7 +165,7 @@ public class AlienProfileActivity extends AppCompatActivity {
             LinearLayoutManager layoutManager = new LinearLayoutManager(this.app);
             layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
             layoutManager.scrollToPosition(0);
-            container.setAdapter(new MyAdaptor(posts));
+            container.setAdapter(new MyAdaptor(posts, this.app));
             container.setLayoutManager(layoutManager);
         }
     }
