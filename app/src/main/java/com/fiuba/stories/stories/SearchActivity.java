@@ -12,6 +12,9 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.view.KeyEvent;
+
+import android.view.inputmethod.EditorInfo;
 
 import com.fiuba.stories.stories.utils.AppServerRequest;
 import com.fiuba.stories.stories.utils.HttpCallback;
@@ -58,6 +61,23 @@ public class SearchActivity extends AppCompatActivity {
                 }
             }
         });
+
+        TextView.OnEditorActionListener exampleListener = new TextView.OnEditorActionListener() {
+
+            public boolean onEditorAction(TextView exampleView, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_NULL
+                        && event.getAction() == KeyEvent.ACTION_DOWN) {
+                    if (TextUtils.isEmpty(searchText.getText().toString())) {
+                        searchText.setError(getString(R.string.error_field_required));
+                    } else {
+                        AppServerRequest.getPeolpleSearch(app.userLoggedIn.getEmail(), app.userLoggedIn.token, searchText.getText().toString(), new SearchActivity.CallbackRequestGetPeople());
+                    }
+                }
+                return true;
+            }
+        };
+
+        this.searchText.setOnEditorActionListener(exampleListener);
     }
 
     private void setSearchContent(ArrayList<JSONObject> users){
