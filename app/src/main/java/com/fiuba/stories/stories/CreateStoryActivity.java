@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 import com.fiuba.stories.stories.utils.AppServerRequest;
 import com.fiuba.stories.stories.utils.HttpCallback;
+import com.fiuba.stories.stories.utils.LocationHelper;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
@@ -42,6 +43,7 @@ public class CreateStoryActivity extends AppCompatActivity {
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
     StoriesApp app;
+    CreateStoryActivity that = this;
     private ImageButton mediaUpload;
     private ImageButton takePhoto;
     private FirebaseStorage storage;
@@ -147,7 +149,11 @@ public class CreateStoryActivity extends AppCompatActivity {
                                 privacity = "Private";
                                 priv = Post.privacity_private;
                             }
-                            requestUploadStory(new Post("0", title, description, 0, app.userLoggedIn, priv, urlImage));
+                            LocationHelper location = new LocationHelper(that);
+                            if(!location.canGetLocation()){
+                                location.showSettingsAlert();
+                            }
+                            requestUploadStory(new Post("0", title, description, 0, app.userLoggedIn, priv, urlImage, location.getLatitude(), location.getLongitude()));
                         }
                     });
 

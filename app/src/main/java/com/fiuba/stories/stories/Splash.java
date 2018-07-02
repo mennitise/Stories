@@ -16,6 +16,7 @@ import com.facebook.ProfileManager;
 import com.fiuba.stories.stories.utils.AppServerRequest;
 import com.fiuba.stories.stories.utils.HttpCallback;
 import com.fiuba.stories.stories.utils.ResponseObject;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -31,6 +32,8 @@ public class Splash extends AppCompatActivity {
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_splash);
+
+        //FirebaseMessaging.getInstance().subscribeToTopic("news");
 
         AppServerRequest.upServer(new CallbackRequest());
 

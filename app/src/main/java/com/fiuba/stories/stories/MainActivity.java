@@ -27,6 +27,7 @@ import com.facebook.AccessToken;
 import com.facebook.login.LoginManager;
 import com.fiuba.stories.stories.utils.AppServerRequest;
 import com.fiuba.stories.stories.utils.HttpCallback;
+import com.google.firebase.auth.FirebaseAuth;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,7 +38,6 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-
 
     StoriesApp app;
     TextView nav_header_name;
@@ -138,7 +138,9 @@ public class MainActivity extends AppCompatActivity
 
     public void logout() {
         ((StoriesApp) getApplicationContext()).userLoggedIn = null;
+
         LoginManager.getInstance().logOut();
+        FirebaseAuth.getInstance().signOut();
         goLoginScreen();
     }
 

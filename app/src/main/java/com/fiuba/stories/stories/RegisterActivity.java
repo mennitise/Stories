@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.Looper;
+import android.service.autofill.RegexValidator;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -37,6 +38,13 @@ import android.widget.Toast;
 import com.fiuba.stories.stories.utils.AppServerRequest;
 import com.fiuba.stories.stories.utils.HttpCallback;
 import com.fiuba.stories.stories.utils.ResponseObject;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -63,6 +71,9 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
     private StoriesApp app;
     private String token;
 
+    private FirebaseAuth mAuth;
+
+
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
@@ -78,6 +89,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
         this.app = (StoriesApp) getApplicationContext();
+        mAuth = FirebaseAuth.getInstance();
 
         // Set up the register form.
         //firstName
@@ -236,30 +248,59 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            Runnable runner200 = new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(getBaseContext(), "Register Successful.", Toast.LENGTH_LONG).show();
-                }
-            };
-            Runnable runner401 = new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(getBaseContext(), "The user is already registered.", Toast.LENGTH_LONG).show();
-                    showProgress(false);
-                }
-            };
-            Runnable runner400 = new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(getBaseContext(), "The registration fails. Please try again.", Toast.LENGTH_LONG).show();
-                    showProgress(false);
-                }
-            };
-            UtilCallbacks util = new UtilCallbacks();
-            AppServerRequest.registerUser(firstName, lastName, email, birthday, "99", "male",password,
-                                            util.getCallbackRequestRegister(email, this.app, this, MainActivity.class, runner200, runner401, runner400));
+
+
+            // Add user to Firebase
+            mAuth.createUserWithEmailAndPassword(email, this.app.passFirebase)
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                // Sign in success, update UI with the signed-in user's information
+                                Log.d("REGISTER TO FIREBASE:", "createUserWithEmail:success");
+                                FirebaseUser user = mAuth.getCurrentUser();
+                                updateUI();
+                            } else {
+                                // If sign in fails, display a message to the user.
+                                Log.w("REGISTER TO FIREBASE:", "createUserWithEmail:failure", task.getException());
+                                Toast.makeText(RegisterActivity.this, "Mail authentication failed.",
+                                        Toast.LENGTH_SHORT).show();
+                                showProgress(false);
+                            }
+                        }
+                    });
         }
+    }
+
+    private void updateUI(){
+        String email = mEmailView.getText().toString();
+        String password = mPasswordView.getText().toString();
+        String firstName = mFirstNameView.getText().toString();
+        String lastName = mLastNameView.getText().toString();
+        String birthday = mBirthdayView.getText().toString();
+        Runnable runner200 = new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getBaseContext(), "Register Successful.", Toast.LENGTH_LONG).show();
+            }
+        };
+        Runnable runner401 = new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getBaseContext(), "The user is already registered.", Toast.LENGTH_LONG).show();
+                showProgress(false);
+            }
+        };
+        Runnable runner400 = new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getBaseContext(), "The registration fails. Please try again.", Toast.LENGTH_LONG).show();
+                showProgress(false);
+            }
+        };
+        UtilCallbacks util = new UtilCallbacks();
+        AppServerRequest.registerUser(firstName, lastName, email, birthday, "99", "male",password,
+                util.getCallbackRequestRegister(email, app, this, MainActivity.class, runner200, runner401, runner400));
     }
 
     private boolean isEmailValid(String email) {

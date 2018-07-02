@@ -9,10 +9,12 @@ import com.facebook.appevents.AppEventsLogger;
 public class StoriesApp extends Application{
 
     public User userLoggedIn;
+    public String passFirebase;
 
     @Override
     public void onCreate(){
         super.onCreate();
+        this.passFirebase = "123456";
         FacebookSdk.sdkInitialize(getApplicationContext());
         AppEventsLogger.activateApp(this);
     }

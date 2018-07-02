@@ -122,6 +122,8 @@ public class AppServerRequest {
             json.put("username", username);
             json.put("state", "Public");
             json.put("url", story.getUrlImage());
+            json.put("lat",story.getLatitude());
+            json.put("long",story.getLongitude());
         } catch (JSONException e) {
             e.printStackTrace();
         }

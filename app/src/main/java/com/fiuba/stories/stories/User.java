@@ -45,6 +45,14 @@ public class User {
         this.urlProfilePicture = urlProfilePicture;
     }
 
+    public User(String firstName, String lastName, String email, String birthday, String gender) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.birthday = birthday;
+        this.gender = gender;
+    }
+
     public User(){
 
     }

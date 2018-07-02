@@ -48,6 +48,11 @@ import com.facebook.login.widget.LoginButton;
 import com.fiuba.stories.stories.utils.AppServerRequest;
 import com.fiuba.stories.stories.utils.HttpCallback;
 import com.fiuba.stories.stories.utils.UtilCallbacks;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.gson.JsonObject;
 
 import org.json.JSONException;
@@ -70,6 +75,8 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
 
     private LoginButton loginButton;
     private CallbackManager callbackManager;
+    private FirebaseAuth mAuth;
+    private Login that = this;
 
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -86,6 +93,7 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
         setContentView(R.layout.login);
 
         this.app = (StoriesApp) getApplicationContext();
+        this.mAuth = FirebaseAuth.getInstance();
 
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
@@ -221,7 +229,28 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
         startActivity(intent);
     }
 
-    private void loginUser(String email, String password){
+    private void loginFirebaseUser(String email, String password) {
+        mAuth.signInWithEmailAndPassword(mEmailView.getText().toString(), mPasswordView.getText().toString())
+                .addOnCompleteListener(that, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d("Login user in Firebase", "signInWithEmail:success");
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            updateUI();
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w("Login user in Firebase", "signInWithEmail:failure", task.getException());
+                            Toast.makeText(Login.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                            showProgress(false);
+                        }
+                    }
+                });
+    }
+
+    private void updateUI(){
         Runnable runner200 = new Runnable() {
             @Override
             public void run() {
@@ -244,9 +273,11 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
         };
         UtilCallbacks util = new UtilCallbacks();
         Log.d("DEbUG", "AppServerRequest.loginUser");
+        String email = mEmailView.getText().toString();
+        String password = mPasswordView.getText().toString();
         AppServerRequest.loginUser( email,
-                                    password,
-                                    util.getCallbackRequestLogin(mEmailView.getText().toString(),this.app, this, MainActivity.class, runner200, runner401, runner400)
+                password,
+                util.getCallbackRequestLogin(mEmailView.getText().toString(),this.app, this, MainActivity.class, runner200, runner401, runner400)
         );
     }
 
@@ -342,7 +373,7 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            loginUser(email,password);
+            loginFirebaseUser(email,password);
             showProgress(true);
         }
     }

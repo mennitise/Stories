@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/app_bar_height"
         android:fitsSystemWindows="true"
-        android:background="@color/primaryRed"
+        android:background="@color/colorPrimary"
 
         android:theme="@style/AppTheme.AppBarOverlay">
 
@@ -22,7 +22,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
-            app:contentScrim="@color/primaryRed"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
             app:toolbarId="@+id/toolbar">
 

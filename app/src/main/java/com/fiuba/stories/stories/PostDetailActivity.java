@@ -9,7 +9,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -170,6 +172,22 @@ public class PostDetailActivity extends AppCompatActivity {
         });
 
         comment = findViewById(R.id.comment_text);
+        comment.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int idKey, KeyEvent keyEvent) {
+                if (idKey == EditorInfo.IME_ACTION_SEND) {
+                    if (TextUtils.isEmpty(comment.getText().toString())) {
+                        comment.setError(getString(R.string.error_field_required));
+                    } else {
+                        AppServerRequest.putComment(app.userLoggedIn.getEmail(), app.userLoggedIn.token, id, comment.getText().toString(), new CallbackRequestPutComment());
+                        comment.setText("");
+                    }
+                    return true;
+                }
+                return false;
+            }
+        });
+
         sendComment = findViewById(R.id.comment_send);
         sendComment.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -192,6 +210,7 @@ public class PostDetailActivity extends AppCompatActivity {
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         container.setAdapter(new CommentsAdaptor(comments));
         container.setLayoutManager(layoutManager);
+        layoutManager.scrollToPosition(comments.size()-1);
     }
 
     private void goToProfileScreen() {

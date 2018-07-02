@@ -12,6 +12,8 @@ public class Post {
     User ownerUser;
     int privacity;
     String urlImage;
+    double latitude;
+    double longitude;
 
     public Post(String id, String title, String description, int imagePost, User ownerUser, int privacity, String urlImage) {
         this.id = id;
@@ -21,6 +23,35 @@ public class Post {
         this.ownerUser = ownerUser;
         this.privacity = privacity;
         this.urlImage = urlImage;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public Post(String id, String title, String description, int imagePost, User ownerUser, int privacity, String urlImage, double latitude, double longitude) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.imagePost = imagePost;
+
+        this.ownerUser = ownerUser;
+        this.privacity = privacity;
+        this.urlImage = urlImage;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     public static final int privacity_public = 0;

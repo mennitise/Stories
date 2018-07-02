@@ -5,13 +5,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.fiuba.stories.stories.utils.AppServerRequest;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -52,16 +56,34 @@ public class ChatFriendActivity extends AppCompatActivity {
         this.message = findViewById(R.id.message);
         this.send = findViewById(R.id.send);
 
-
+        this.friendName.setText(receptor);
 
         this.db = FirebaseDatabase.getInstance();
-        this.dbRef = this.db.getReference("chat/"+this.app.userLoggedIn.getEmail()+"_"+receptor); // Name where save messages -> should be usernames;
-        this.dbRefReceptor = this.db.getReference("chat/"+receptor+"_"+this.app.userLoggedIn.getEmail());
+        this.dbRef = this.db.getReference("chat/"+this.app.userLoggedIn.getEmail().replace('.', '-')+"_"+receptor.replace('.', '-')); // Name where save messages -> should be usernames;
+        this.dbRefReceptor = this.db.getReference("chat/"+receptor.replace('.', '-')+"_"+this.app.userLoggedIn.getEmail().replace('.', '-'));
 
         this.adaptor = new MessageAdaptor(this);
         LinearLayoutManager l = new LinearLayoutManager(this);
         this.recyclerView.setLayoutManager(l);
         this.recyclerView.setAdapter(this.adaptor);
+
+        this.message.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int idKey, KeyEvent keyEvent) {
+                if (idKey == EditorInfo.IME_ACTION_SEND) {
+
+                    if (TextUtils.isEmpty(message.getText().toString())) {
+                        message.setError(getString(R.string.error_field_required));
+                    } else {
+                        dbRef.push().setValue(new MessageSend(app.userLoggedIn.getEmail(), message.getText().toString(), ServerValue.TIMESTAMP));
+                        dbRefReceptor.push().setValue(new MessageSend(app.userLoggedIn.getEmail(), message.getText().toString(), ServerValue.TIMESTAMP));
+                        message.setText("");
+                    }
+                    return true;
+                }
+                return false;
+            }
+        });
 
         this.send.setOnClickListener(new View.OnClickListener() {
             @Override
