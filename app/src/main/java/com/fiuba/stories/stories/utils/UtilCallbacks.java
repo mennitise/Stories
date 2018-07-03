@@ -11,10 +11,10 @@ import com.fiuba.stories.stories.Login;
 import com.fiuba.stories.stories.MainActivity;
 import com.fiuba.stories.stories.NoFriendActivity;
 import com.fiuba.stories.stories.PostDetailActivity;
+import com.fiuba.stories.stories.ProfileUpdate;
 import com.fiuba.stories.stories.RegisterActivity;
 import com.fiuba.stories.stories.StoriesApp;
 import com.fiuba.stories.stories.User;
-import com.google.gson.JsonObject;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,6 +30,11 @@ public class UtilCallbacks{
     public CallbackRequestRegister getCallbackRequestRegister(String vUsername, StoriesApp app, RegisterActivity registerActivity, Class<MainActivity> mainActivityClass, Runnable vRunner200, Runnable vRunner401, Runnable vRunner400){
         Log.d("DEbUG", "new CallbackRequestLogin");
         return new CallbackRequestRegister(vUsername, app, registerActivity, mainActivityClass, vRunner200, vRunner401, vRunner400);
+    }
+
+    public CallbackRequestProfilePut getCallbackRequestProfilePut(String vUsername, StoriesApp app, ProfileUpdate profileActivity, Class<MainActivity> mainActivityClass, Runnable vRunner200, Runnable vRunner401, Runnable vRunner400){
+        Log.d("DEbUG", "new CallbackRequestLogin");
+        return new CallbackRequestProfilePut(vUsername, app, profileActivity, vRunner200, vRunner401, vRunner400);
     }
 
     public CallbackRequestGetAlienProfile getCallbackRequestGetAlienProfile(String username, Class<AlienProfileActivity> profileActivityClass, PostDetailActivity postDetailActivity, Runnable vRunner401, Runnable vRunner400){
@@ -81,6 +86,46 @@ public class UtilCallbacks{
                     currentUser.LOG_USER();
                     this.app.userLoggedIn = currentUser;
                     AppServerRequest.getProfileInformation(this.username, token, new UtilCallbacks.CallbackRequestGetProfileFromRegister(this.app, this.registerActivity, this.mainActivityClass, this.runner401, this.runner400));
+                } else if (getHTTPResponse().code() == 401){
+                    // The user is already registered
+                    new Handler(Looper.getMainLooper()).post(this.runner401);
+                } else {
+                    // The registration fails
+                    new Handler(Looper.getMainLooper()).post(this.runner400);
+                }
+            } catch (Exception e) {
+                Log.e("TEST REQUEST CALLBACK", "Error");
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public class CallbackRequestProfilePut extends HttpCallback {
+        String username;
+        StoriesApp app;
+        ProfileUpdate profileUpdate;
+        Class<MainActivity> mainActivityClass;
+        Runnable runner200;
+        Runnable runner401;
+        Runnable runner400;
+        public CallbackRequestProfilePut(String vUsername, StoriesApp app, ProfileUpdate profileUpdate, Runnable vRunner200, Runnable vRunner401, Runnable vRunner400) {
+            this.username = vUsername;
+            this.app = app;
+            this.profileUpdate = profileUpdate;
+            this.runner200 = vRunner200;
+            this.runner401 = vRunner401;
+            this.runner400 = vRunner400;
+        }
+
+        @Override
+        public void onResponse() {
+            try {
+                Log.d("HTTP RESPONSE: ", getHTTPResponse().toString());
+                Log.d("HTTP RESPONSE: ", "code = " + getHTTPResponse().code());
+                if (getHTTPResponse().code() == 200) {
+                    Log.d("RESPONSE: ", getHTTPResponse().body().string());
+
+                    new Handler(Looper.getMainLooper()).post(this.runner200);
                 } else if (getHTTPResponse().code() == 401){
                     // The user is already registered
                     new Handler(Looper.getMainLooper()).post(this.runner401);

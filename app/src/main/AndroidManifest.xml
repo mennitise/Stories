@@ -11,7 +11,6 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
-
     <application
         android:name=".StoriesApp"
         android:allowBackup="true"
@@ -83,7 +82,7 @@
             android:label="@string/title_activity_no_friend"
             android:theme="@style/AppTheme" />
         <activity android:name=".ChatFriendActivity" />
-        <activity android:name=".ChatSelectActivity"></activity>
+        <activity android:name=".ChatSelectActivity" />
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -92,9 +91,12 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"></meta-data>
+                android:resource="@xml/file_paths" />
         </provider>
 
+        <activity
+            android:name=".ProfileUpdate"
+            android:label="@string/title_activity_profile_update"></activity>
     </application>
 
 </manifest>

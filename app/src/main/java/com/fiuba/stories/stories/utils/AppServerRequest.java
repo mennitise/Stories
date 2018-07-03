@@ -88,7 +88,7 @@ public class AppServerRequest {
     public static void putProfileInformation(String firstName, String lastName, String email, String birthday, String age, String gender, String token, Callback callback){
         String credential = Credentials.basic(email, token);
         String json =   "{\"username\": \"" + email + "\"," +
-                " \"firstname\": \"" + firstName + "\"," +
+                " \"fisrtname\": \"" + firstName + "\"," +
                 " \"lastname\": \"" + lastName + "\"," +
                 " \"gender\": \"" + gender + "\"," +
                 " \"age\": \"" + age + "\"," +

@@ -60,10 +60,24 @@ public class ProfileActivity extends AppCompatActivity {
                 goToFriendsScreen();
             }
         });
+
+        FloatingActionButton edit = (FloatingActionButton) findViewById(R.id.edit);
+        edit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goToUpdateScreen();
+            }
+        });
     }
 
     private void goToFriendsScreen(){
         Intent intent = new Intent(this, FriendsActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
+        startActivity(intent);
+    }
+
+    private void goToUpdateScreen(){
+        Intent intent = new Intent(this, ProfileUpdate.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
         startActivity(intent);
     }

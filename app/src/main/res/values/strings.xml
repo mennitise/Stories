@@ -13,8 +13,10 @@
     <string name="prompt_lastName">Last Name</string>
     <string name="prompt_birthday">Birthday</string>
     <string name="prompt_password">Password</string>
+    <string name="prompt_gender">Gender</string>
     <string name="action_sign_in">Sign in</string>
     <string name="action_register">Register</string>
+    <string name="action_update">Update</string>
     prompt_name
     <string name="action_facebook_sign_in">Login with Facebook</string>
     <string name="cancel_login">Cancel Facebook login</string>
@@ -152,4 +154,5 @@
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_mapastest">Map</string>
     <string name="title_activity_no_friend">NoFriendActivity</string>
+    <string name="title_activity_profile_update">Profile Update</string>
 </resources>
