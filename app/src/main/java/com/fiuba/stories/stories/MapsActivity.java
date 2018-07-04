@@ -73,11 +73,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
-
-        AppServerRequest.getFeedStories(this.app.userLoggedIn.email, this.app.userLoggedIn.token, new MapsActivity.CallbackRequestGetMapStories());
-
-
+        AppServerRequest.getGeoStories(this.app.userLoggedIn.email, this.app.userLoggedIn.token, new MapsActivity.CallbackRequestGetMapStories());
     }
 
     @Override
@@ -105,6 +101,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         ownerUser.setEmail(username);
                         JSONObject storyDetails = story.getJSONObject("storyDetail");
                         String id, title, description, url, state;
+                        int type;
                         double latitude, longitude;
                         try {
                             id = story.getString("_id");
@@ -120,6 +117,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             description = storyDetails.getString("description");
                         }catch (JSONException e){
                             description = "description";
+                        }
+                        try {
+                            type = storyDetails.getInt("type");
+                        }catch (JSONException e){
+                            type = Post.TYPE_IMAGE;
                         }
                         try {
                             state = storyDetails.getString("state");
@@ -148,7 +150,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             privacity = Post.privacity_private;
                         }
 
-                        posts.add(new Post(id, title, description, R.drawable.stories_splash, ownerUser, privacity, url, latitude, longitude));
+                        posts.add(new Post(id, title, description, R.drawable.stories_splash, type, ownerUser, privacity, url, latitude, longitude));
                     }
                     MapsActivity.this.runOnUiThread(new MapsActivity.CallbackRequestGetMapStories.SetResults());
                 /*

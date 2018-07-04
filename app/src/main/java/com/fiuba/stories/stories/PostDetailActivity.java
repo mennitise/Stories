@@ -1,6 +1,7 @@
 package com.fiuba.stories.stories;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -16,8 +17,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
@@ -50,6 +53,7 @@ public class PostDetailActivity extends AppCompatActivity {
     public static final String DESCRIPTION_POST = "descPost";
     public static final String IMAGE_POST = "imagePost";
     public static final String URL_IMAGE_POST = "urlImagePost";
+    public static final String TYPE_POST = "typePost";
 
     FirebaseStorage storage;
     StoriesApp app;
@@ -59,6 +63,8 @@ public class PostDetailActivity extends AppCompatActivity {
     String nameAuthor;
     String title;
     String description;
+    int type;
+    int image;
     Button author;
     Button likes;
     ImageButton like;
@@ -67,6 +73,9 @@ public class PostDetailActivity extends AppCompatActivity {
     ImageButton faceDislike;
     EditText comment;
     ImageButton sendComment;
+
+    ImageView imageView;
+    VideoView videoView;
 
 
     @Override
@@ -88,25 +97,60 @@ public class PostDetailActivity extends AppCompatActivity {
         TextView descriptionView  = findViewById(R.id.description_post);
         descriptionView.setText(description);
 
-        int image = intent.getIntExtra(IMAGE_POST,0);
-        ImageView imageView = findViewById(R.id.post_image);
+        type = intent.getIntExtra(TYPE_POST, Post.TYPE_IMAGE);
+
+        imageView = findViewById(R.id.post_image);
+        videoView = findViewById(R.id.post_video);
+        if (type == Post.TYPE_IMAGE){
+            imageView.setVisibility(View.VISIBLE);
+            videoView.setVisibility(View.INVISIBLE);
+        } else if (type == Post.TYPE_VIDEO){
+            imageView.setVisibility(View.INVISIBLE);
+            videoView.setVisibility(View.VISIBLE);
+        }
+
+        image = intent.getIntExtra(IMAGE_POST,0);
         imageView.setImageResource(image);
 
         storage = FirebaseStorage.getInstance();
         String urlImage = intent.getStringExtra(URL_IMAGE_POST);
         if (urlImage != null && urlImage != ""){
-            Log.d("image",urlImage);
-            try {
-                StorageReference httpsReference = storage.getReferenceFromUrl(urlImage);
-                Glide.with(this)
-                        .using(new FirebaseImageLoader())
-                        .load(httpsReference)
-                        .into(imageView);
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (type == Post.TYPE_IMAGE){
+
+                Log.d("image",urlImage);
+                try {
+                    StorageReference httpsReference = storage.getReferenceFromUrl(urlImage);
+                    Glide.with(this)
+                            .using(new FirebaseImageLoader())
+                            .load(httpsReference)
+                            .into(imageView);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (type == Post.TYPE_VIDEO) {
+                Log.d("WATCH VIDEO", "Can you see?");
+                Log.d("WATCH VIDEO", urlImage);
+                Uri uri = Uri.parse(urlImage);
+                MediaController controller = new MediaController(this);
+                videoView.setVideoURI(uri);
+                controller.setMediaPlayer(videoView);
+                videoView.start();
             }
         }
 
+/*
+        {"feedStories":[
+                {"_id":"6c27e55d-91c3-49d5-8a46-06dd1c1b7aba","username":"mennitise@gmail.com","likes":3,"comments":2,
+                        "storyDetail":{"description":"Take by me","title":"Upload a photo","state":"Public","url":"https:\/\/firebasestorage.googleapis.com\/v0\/b\/stories-tii.appspot.com\/o\/images%2FJPEG_20180703_220541_769937361.jpg?alt=media&token=089307e0-cc4e-408b-8a04-397de7d21e95","lat":-34.6869119,"long":-58.6587003},"createdAt":"2018-07-04 01:06:19.874885","updatedAt":"2018-07-04 01:06:19.874906","reactions":[{"reacter":"mennitise@gmail.com","reaction":"like"},{"reacter":"test@test.com","reaction":"like"},{"reacter":"a@gmail.com","reaction":"facelike"}],"importance":30.6},
+                {"_id":"2beca12e-e009-48ae-b4f6-917fff38c4b1","username":"mennitise@gmail.com","likes":1,"comments":0,
+                        "storyDetail":{"description":"Can you see?","title":"Uploading video!","state":"Public","url":"https:\/\/firebasestorage.googleapis.com\/v0\/b\/stories-tii.appspot.com\/o\/videos%2F1216491300?alt=media&token=b215f272-1d23-44aa-9a5d-039d66085263","lat":-34.6868776,"type":1,"long":-58.6586957},"createdAt":"2018-07-04 02:37:57.228813","updatedAt":"2018-07-04 02:37:57.228828","reactions":[{"reacter":"a@gmail.com","reaction":"like"}],"importance":28.2},
+                {"_id":"a3734c55-8380-4a2a-beea-87b14ba1bfbd","username":"mennitise@gmail.com","likes":0,"comments":0,
+                        "storyDetail":{"description":"It's really good","title":"Yeah!","state":"Public","url":"https:\/\/firebasestorage.googleapis.com\/v0\/b\/stories-tii.appspot.com\/o\/images%2F19326?alt=media&token=1747dad6-7284-4bd8-8b55-4c5c1528cde5","lat":-34.6869134,"type":0,"long":-58.6586997},"createdAt":"2018-07-04 02:35:17.422810","updatedAt":"2018-07-04 02:35:17.422832","reactions":[],"importance":27.5},
+                {"_id":"1c8a9077-3811-4b1b-8773-77530c497409","username":"a@gmail.com","likes":2,"comments":13,
+                        "storyDetail":{"description":"Le chat","title":"Macri","state":"Public","url":"https:\/\/firebasestorage.googleapis.com\/v0\/b\/stories-tii.appspot.com\/o\/images%2F1911929275?alt=media&token=f8e7526a-d909-444b-8eb8-57541c0ae29b","lat":null,"type":null,"long":null},"createdAt":"2018-07-04 02:47:14.613087","updatedAt":"2018-07-04 02:47:14.613104","reactions":[{"reacter":"mennitise@gmail.com","reaction":"facelike"},{"reacter":"a@gmail.com","reaction":"like"}],"importance":20.4}]}
+*/
         author = findViewById(R.id.author_post);
         likes = findViewById(R.id.likes_button);
 

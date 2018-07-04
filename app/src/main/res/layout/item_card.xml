@@ -20,59 +20,69 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="282dp">
+        android:layout_height="match_parent">
 
-        <ImageView
-            android:id="@+id/card_image"
+        <RelativeLayout
+            android:id="@+id/card_media"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/card_image_height"
-            android:layout_margin="5dp"
-            android:contentDescription="postImage"
-            android:scaleType="centerCrop"
+            android:layout_height="200dp">
 
-            tools:src="@drawable/stories_no_image" />
+            <ImageView
+                android:id="@+id/card_image"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/card_image_height"
+                android:layout_margin="5dp"
+                android:contentDescription="postImage"
+                android:scaleType="centerCrop"
+                tools:src="@drawable/stories_no_image" />
+
+            <VideoView
+                android:id="@+id/card_video"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_margin="5dp"
+                android:visibility="invisible"
+                />
+
+        </RelativeLayout>
 
         <TextView
             android:id="@+id/title_post"
             android:layout_width="match_parent"
             android:layout_height="@dimen/card_title_height"
-            android:layout_alignBottom="@+id/card_image"
+            android:layout_alignBottom="@+id/card_media"
             android:layout_marginLeft="@dimen/md_keylines"
             android:textAppearance="@style/TextAppearance.AppCompat.Title"
             android:textColor="@color/white"
             tools:text="@string/item_title" />
 
-        <TextView
-            android:id="@+id/description_post"
-            android:layout_width="280dp"
-            android:layout_height="51dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignStart="@+id/title_post"
-            android:ellipsize="end"
-            android:singleLine="true"
-            android:textColor="@color/white"
-            android:textSize="@dimen/article_subheading"
-            tools:text="@string/item_desc" />
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true">
+            android:orientation="horizontal"
+            android:layout_alignParentBottom="true">
+
+            <TextView
+                android:id="@+id/description_post"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:layout_weight="1"
+                android:layout_margin="@dimen/md_keylines"
+                android:singleLine="false"
+                android:textColor="@color/white"
+                android:textSize="@dimen/article_subheading"
+                tools:text="@string/item_desc" />
 
             <ImageButton
                 android:id="@+id/like_post_button"
                 style="?android:attr/borderlessButtonStyle"
                 android:layout_width="59dp"
-                android:layout_height="match_parent"
-                app:srcCompat="@drawable/like" />
-            <!--<ImageButton
-                android:id="@+id/dislike_post_button"
-                android:layout_width="wrap_content"
+                android:layout_marginRight="@dimen/md_keylines"
+                android:layout_marginVertical="@dimen/md_keylines"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/not_like"
-                style="?android:attr/borderlessButtonStyle" />
-            -->
+                app:srcCompat="@drawable/like" />
 
         </LinearLayout>
 

@@ -1,19 +1,30 @@
 package com.fiuba.stories.stories;
 
-import android.app.Application;
-
 import java.util.ArrayList;
 
 public class Post {
+
+    public static final int TYPE_IMAGE = 0;
+    public static final int TYPE_VIDEO = 1;
+
     String id;
     String title;
     String description;
     int imagePost;
+    int type = TYPE_IMAGE;
     User ownerUser;
     int privacity;
     String urlImage;
     double latitude;
     double longitude;
+
+    public int getImagePost() {
+        return imagePost;
+    }
+
+    public void setImagePost(int imagePost) {
+        this.imagePost = imagePost;
+    }
 
     public Post(String id, String title, String description, int imagePost, User ownerUser, int privacity, String urlImage) {
         this.id = id;
@@ -23,6 +34,17 @@ public class Post {
         this.ownerUser = ownerUser;
         this.privacity = privacity;
         this.urlImage = urlImage;
+    }
+
+    public Post(String id, String title, String description, int imagePost, User ownerUser, int privacity, String urlImage, int type) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.imagePost = imagePost;
+        this.ownerUser = ownerUser;
+        this.privacity = privacity;
+        this.urlImage = urlImage;
+        this.type = type;
     }
 
     public double getLatitude() {
@@ -41,12 +63,12 @@ public class Post {
         this.longitude = longitude;
     }
 
-    public Post(String id, String title, String description, int imagePost, User ownerUser, int privacity, String urlImage, double latitude, double longitude) {
+    public Post(String id, String title, String description, int imagePost, int type, User ownerUser, int privacity, String urlImage, double latitude, double longitude) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.imagePost = imagePost;
-
+        this.type = type;
         this.ownerUser = ownerUser;
         this.privacity = privacity;
         this.urlImage = urlImage;
@@ -65,16 +87,16 @@ public class Post {
         this.description = description;
     }
 
-    public int getImagePost() {
-        return imagePost;
+    public int getType() {
+        return type;
     }
 
     public String getUrlImage() {
         return this.urlImage;
     }
 
-    public void setImagePost(int imagePost) {
-        this.imagePost = imagePost;
+    public void setType(int type) {
+        this.type = type;
     }
 
     public String getTitle() {

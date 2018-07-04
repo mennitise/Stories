@@ -22,6 +22,7 @@ public class AppServerRequest {
     private static final String PROFILE_INFO = "/api/profile";
     private static final String STORIES = "/api/stories";
     private static final String FLASHSTORIES = "/api/flashstories";
+    private static final String GEOLOCATION = "/api/geolocation/stories";
     private static final String INVITATIONS = "/api/invitations";
     private static final String FRIENDS = "/api/friends";
     private static final String COMMENTS = "/api/comments";
@@ -114,6 +115,11 @@ public class AppServerRequest {
         AppServerRequest.getWithAuth(BASE_URL + STORIES, credential, username, callback);
     }
 
+    public static void getGeoStories(String username, String token, Callback callback){
+        String credential = Credentials.basic(username, token);
+        AppServerRequest.getWithAuth(BASE_URL + GEOLOCATION, credential, username, callback);
+    }
+
     public static void postStory(String username, String token, Post story, Callback callback){
         JSONObject json = new JSONObject();
         try {
@@ -121,6 +127,7 @@ public class AppServerRequest {
             json.put("description", story.getDescription());
             json.put("username", username);
             json.put("state", "Public");
+            json.put("type", story.getType());
             json.put("url", story.getUrlImage());
             json.put("lat",story.getLatitude());
             json.put("long",story.getLongitude());

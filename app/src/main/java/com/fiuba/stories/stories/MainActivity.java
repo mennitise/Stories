@@ -226,6 +226,7 @@ public class MainActivity extends AppCompatActivity
                         ownerUser.setEmail(username);
                         JSONObject storyDetails = story.getJSONObject("storyDetail");
                         String id, title, description, url, state;
+                        int type;
                         try {
                             id = story.getString("_id");
                         }catch (JSONException e){
@@ -251,6 +252,11 @@ public class MainActivity extends AppCompatActivity
                         }catch (JSONException e){
                             url = "Private";
                         }
+                        try {
+                            type = storyDetails.getInt("type");
+                        }catch (JSONException e){
+                            type = Post.TYPE_IMAGE;
+                        }
                         int privacity;
                         if (state == "Public"){
                             privacity = Post.privacity_public;
@@ -258,7 +264,7 @@ public class MainActivity extends AppCompatActivity
                             privacity = Post.privacity_private;
                         }
 
-                        posts.add(new Post(id, title, description, R.drawable.stories_splash, ownerUser, privacity, url));
+                        posts.add(new Post(id, title, description, R.drawable.stories_splash, ownerUser, privacity, url, type));
                     }
                     MainActivity.this.runOnUiThread(new MainActivity.CallbackRequestGetFeedStories.SetResults());
                 /*
