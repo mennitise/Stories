@@ -10,12 +10,17 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.fiuba.stories.stories.utils.AppServerRequest;
 import com.fiuba.stories.stories.utils.HttpCallback;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,6 +38,7 @@ public class AlienProfileActivity extends AppCompatActivity {
     public static final String AGE = "AGE";
 
     StoriesApp app;
+    FirebaseStorage storage;
     User user;
     private LinearLayout scrollProfile;
     private RecyclerView mRecyclerView;
@@ -65,6 +71,23 @@ public class AlienProfileActivity extends AppCompatActivity {
         profileBirthday.setText(this.user.birthday);
         TextView profileGender = findViewById(R.id.info_profile_gender_view);
         profileGender.setText(this.user.gender);
+
+        ImageView picView = (ImageView) this.findViewById(R.id.profile_pic);
+
+        storage = FirebaseStorage.getInstance();
+        String urlImage = this.app.userLoggedIn.urlProfilePicture;
+        if (urlImage != null && urlImage != ""){
+            Log.d("image",urlImage);
+            try {
+                StorageReference httpsReference = storage.getReferenceFromUrl(urlImage);
+                Glide.with(this)
+                        .using(new FirebaseImageLoader())
+                        .load(httpsReference)
+                        .into(picView);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         this.scrollProfile = findViewById(R.id.scroll_profile);
         mRecyclerView = findViewById(R.id.profile_recycler_view);
