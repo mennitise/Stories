@@ -102,6 +102,12 @@ public class NoFriendActivity extends AppCompatActivity {
             try{
                 Log.d("HTTP RESPONSE: ", getHTTPResponse().toString());
                 if (getHTTPResponse().code() == 200) {
+                    String titleNotification = "Recibiste una solicitud de amistad";
+                    String descNotification = user.getName()+" te ha agregado";
+                    String topicNotification = user.getEmail().replace('.', '-').replace('@','_');
+                    UtilCallbacks util = new UtilCallbacks();
+
+                    AppServerRequest.postMessageToTopic(titleNotification,descNotification,topicNotification, util.getCallbackRequestPostNotification());
                     NoFriendActivity.this.runOnUiThread(new NoFriendActivity.CallbackRequestPostInvitation.SetResults());
                 /*
                 } else if (getHTTPResponse().code() == 401){

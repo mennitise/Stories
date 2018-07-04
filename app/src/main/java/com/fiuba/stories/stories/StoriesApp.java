@@ -10,6 +10,7 @@ public class StoriesApp extends Application{
 
     public User userLoggedIn;
     public String passFirebase;
+    public String FCMtoken;
 
     @Override
     public void onCreate(){

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.fiuba.stories.stories.AlienProfileActivity;
@@ -52,6 +53,12 @@ public class UtilCallbacks{
     public CallbackRequestRegisterFacebook getCallbackRequestRegisterFacebook(){
         return new CallbackRequestRegisterFacebook();
     }
+
+    public CallbackRequestPostNotification getCallbackRequestPostNotification(){
+        return new CallbackRequestPostNotification();
+    }
+
+    // ----------------------------------------------------------------
 
     public class CallbackRequestRegister extends HttpCallback {
         String username;
@@ -624,4 +631,20 @@ public class UtilCallbacks{
         }
     }
 
+    public class CallbackRequestPostNotification extends HttpCallback {
+        @Override
+        public void onResponse() {
+            String TAG = "FCM - Send notification";
+            try {
+                Log.d(TAG, getHTTPResponse().toString());
+                Log.d(TAG, getHTTPResponse().code()+"");
+                JSONObject jsonResponse = getJSONResponse();
+                Log.d(TAG, jsonResponse.toString());
+
+            } catch (Exception e) {
+                Log.e(TAG, "ERROR");
+                e.printStackTrace();
+            }
+        }
+    }
 }
