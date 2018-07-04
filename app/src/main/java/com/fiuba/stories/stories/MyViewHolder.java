@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
@@ -26,6 +27,7 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
     TextView titlePost;
     TextView descriptionPost;
     ImageView imagePost;
+    VideoView videoPost;
     Button button1;
     ImageButton button2;
     ImageButton button3;
@@ -35,7 +37,8 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
 
         titlePost = (TextView) itemView.findViewById(R.id.title_post);
         descriptionPost = (TextView) itemView.findViewById(R.id.description_post);
-        imagePost = (ImageView) itemView.findViewById(R.id.card_image);
+        imagePost = itemView.findViewById(R.id.card_image);
+        videoPost = itemView.findViewById(R.id.card_video);
         button2 = (ImageButton) itemView.findViewById(R.id.like_post_button);
         //button3 = (ImageButton) itemView.findViewById(R.id.dislike_post_button);
 
@@ -66,6 +69,7 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
                 intent.putExtra(PostDetailActivity.TITLE_POST, currentPost.getTitle());
                 intent.putExtra(PostDetailActivity.DESCRIPTION_POST, currentPost.getDescription());
                 intent.putExtra(PostDetailActivity.IMAGE_POST, currentPost.getImagePost());
+                intent.putExtra(PostDetailActivity.TYPE_POST, currentPost.getType());
                 intent.putExtra(PostDetailActivity.URL_IMAGE_POST, currentPost.getUrlImage());
                 v.getContext().startActivity(intent);
             }

@@ -1,10 +1,12 @@
 package com.fiuba.stories.stories;
 
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.MediaController;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
@@ -33,21 +35,37 @@ public class MyAdaptor extends RecyclerView.Adapter<MyViewHolder> {
     public void onBindViewHolder(MyViewHolder holder, int position) {
         storage = FirebaseStorage.getInstance();
         String urlImage = posts.get(position).getUrlImage();
-        if (urlImage != null && urlImage != ""){
-            Log.d("image",urlImage);
-            try {
-                StorageReference httpsReference = storage.getReferenceFromUrl(urlImage);
-                Glide.with(holder.itemView.getContext())
-                        .using(new FirebaseImageLoader())
-                        .load(httpsReference)
-                        .into(holder.imagePost);
-            } catch (Exception e) {
-                e.printStackTrace();
+
+        if (posts.get(position).getType() == Post.TYPE_IMAGE) {
+            holder.videoPost.setVisibility(View.INVISIBLE);
+            holder.imagePost.setVisibility(View.VISIBLE);
+            holder.imagePost.setImageResource(posts.get(position).getImagePost());
+            if (urlImage != null && urlImage != ""){
+                Log.d("image",urlImage);
+                try {
+                    StorageReference httpsReference = storage.getReferenceFromUrl(urlImage);
+                    Glide.with(holder.itemView.getContext())
+                            .using(new FirebaseImageLoader())
+                            .load(httpsReference)
+                            .into(holder.imagePost);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
+
+        if (posts.get(position).getType() == Post.TYPE_VIDEO) {
+            if (urlImage != null && urlImage != ""){
+                holder.imagePost.setVisibility(View.INVISIBLE);
+                holder.videoPost.setVisibility(View.VISIBLE);
+                Uri uri = Uri.parse(urlImage);
+                holder.videoPost.setVideoURI(uri);
+                holder.videoPost.start();
+            }
+        }
+
         holder.titlePost.setText(posts.get(position).getTitle());
         holder.descriptionPost.setText(posts.get(position).getDescription());
-        holder.imagePost.setImageResource(posts.get(position).getImagePost());
         holder.currentPost = posts.get(position);
         holder.app = app;
     }

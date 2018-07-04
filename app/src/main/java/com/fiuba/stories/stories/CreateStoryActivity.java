@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -45,6 +46,7 @@ public class CreateStoryActivity extends AppCompatActivity {
     StoriesApp app;
     CreateStoryActivity that = this;
     private ImageButton mediaUpload;
+    private ImageButton videoUpload;
     private ImageButton takePhoto;
     private FirebaseStorage storage;
     private StorageReference storageRef;
@@ -60,8 +62,12 @@ public class CreateStoryActivity extends AppCompatActivity {
     private String description;
     private String privacity;
     private String urlImage;
+    private String urlVideo;
+    int type;
     private Uri selectedImage;
+    private Uri selectedVideo;
 
+    static final int GET_VIDEO_FROM_GALLERY = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +75,7 @@ public class CreateStoryActivity extends AppCompatActivity {
         this.app = (StoriesApp) getApplicationContext();
         setContentView(R.layout.activity_create_story);
         selectedImage = null;
+        selectedVideo = null;
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
 
@@ -106,6 +113,14 @@ public class CreateStoryActivity extends AppCompatActivity {
             }
         });
 
+        videoUpload = findViewById(R.id.upload_video);
+        videoUpload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivityForResult(new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Video.Media.INTERNAL_CONTENT_URI), GET_VIDEO_FROM_GALLERY);
+            }
+        });
+
         all = findViewById(R.id.all_create_story);
         loading = findViewById(R.id.post_progress);
         mTitle = findViewById(R.id.title_create_post);
@@ -117,9 +132,10 @@ public class CreateStoryActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (selectedImage != null) {
+                    type = Post.TYPE_IMAGE;
                     all.setVisibility(View.INVISIBLE);
                     loading.setVisibility(View.VISIBLE);
-                    /* ---------------- FIREBASE UPLOAD ---------------- */
+                    /* ---------------- FIREBASE IMAGE UPLOAD ---------------- */
 
                     final StorageReference fileReference = storageRef.child("images/"+selectedImage.getLastPathSegment());
                     UploadTask uploadTask = fileReference.putFile(selectedImage);
@@ -153,15 +169,59 @@ public class CreateStoryActivity extends AppCompatActivity {
                             if(!location.canGetLocation()){
                                 location.showSettingsAlert();
                             }
-                            requestUploadStory(new Post("0", title, description, 0, app.userLoggedIn, priv, urlImage, location.getLatitude(), location.getLongitude()));
+                            requestUploadStory(new Post("0", title, description, 0, type, app.userLoggedIn, priv, urlImage, location.getLatitude(), location.getLongitude()));
                         }
                     });
 
-                    /* ---------------- FIREBASE UPLOAD ---------------- */
+                    /* ---------------- FIREBASE IMAGE UPLOAD ---------------- */
+                } else if (selectedVideo != null){
+                    type = Post.TYPE_VIDEO;
+                    all.setVisibility(View.INVISIBLE);
+                    loading.setVisibility(View.VISIBLE);
+                    /* ---------------- FIREBASE VIDEO UPLOAD ---------------- */
+
+                    final StorageReference fileReference = storageRef.child("videos/"+selectedVideo.getLastPathSegment());
+                    UploadTask uploadTask = fileReference.putFile(selectedVideo);
+
+                    // Register observers to listen for when the download is done or if it fails
+                    uploadTask.addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception exception) {
+                            Log.d("VIDEO NOT UPLOADED", "Fails at upload");
+                        }
+                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+                            // ...
+                            Log.d("URL:",taskSnapshot.getDownloadUrl().toString());
+                            urlVideo = taskSnapshot.getDownloadUrl().toString();
+                            id = "0";
+                            title = mTitle.getText().toString();
+                            description = mDescription.getText().toString();
+
+                            int priv;
+                            if (mPrivacity.getCheckedRadioButtonId() == R.id.public_radio){
+                                privacity = "Public";
+                                priv = Post.privacity_public;
+                            } else {
+                                privacity = "Private";
+                                priv = Post.privacity_private;
+                            }
+                            LocationHelper location = new LocationHelper(that);
+                            if(!location.canGetLocation()){
+                                location.showSettingsAlert();
+                            }
+                            requestUploadStory(new Post("0", title, description, 0, type, app.userLoggedIn, priv, urlVideo, location.getLatitude(), location.getLongitude()));
+                        }
+                    });
+
+                    /* ---------------- FIREBASE VIDEO UPLOAD ---------------- */
                 } else {
                     // Not upload file
-                    Log.d("IMAGE NOT UPLOADED", "UPLOAD THE IMAGE");
-            }
+                    Log.d("FILE NOT UPLOADED", "UPLOAD THE IMAGE");
+                    Snackbar.make(all, "Please, select a media file to post!", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                }
 
 
             }
@@ -193,12 +253,14 @@ public class CreateStoryActivity extends AppCompatActivity {
         //Detects request codes
         if(requestCode==GET_FROM_GALLERY && resultCode == Activity.RESULT_OK) {
             selectedImage = data.getData();
-            Log.d("Uri: ", selectedImage.toString());
+            Log.d("Uri Image: ", selectedImage.toString());
             Bitmap bitmap;
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
                 mediaUpload.setImageBitmap(bitmap);
-                takePhoto.setImageResource(android.R.color.transparent);
+                videoUpload.setEnabled(false);
+                takePhoto.setEnabled(false);
+                //takePhoto.setImageResource(android.R.color.transparent);
 
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -215,6 +277,19 @@ public class CreateStoryActivity extends AppCompatActivity {
             Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
             selectedImage = Uri.fromFile(new File(mCurrentPhotoPath));
             takePhoto.setImageBitmap(bitmap);
+            mediaUpload.setEnabled(false);
+            videoUpload.setEnabled(false);
+        }
+        if(requestCode==GET_VIDEO_FROM_GALLERY && resultCode == Activity.RESULT_OK){
+            selectedVideo = data.getData();
+            Log.d("Uri Video: ", selectedVideo.toString());
+
+
+            mediaUpload.setEnabled(false);
+            takePhoto.setEnabled(false);
+
+            //selectedPath = getPath(selectedImageUri);
+            //textView.setText(selectedPath);
         }
     }
 
@@ -255,6 +330,7 @@ public class CreateStoryActivity extends AppCompatActivity {
                 intent.putExtra(PostDetailActivity.NAME_AUTHOR_POST, app.userLoggedIn.getName());
                 intent.putExtra(PostDetailActivity.IMAGE_POST, 0);
                 intent.putExtra(PostDetailActivity.URL_IMAGE_POST, urlImage);
+                intent.putExtra(PostDetailActivity.TYPE_POST, type);
                 getBaseContext().startActivity(intent);
                 finish();
             }
