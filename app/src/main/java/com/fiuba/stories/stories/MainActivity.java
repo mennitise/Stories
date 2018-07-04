@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -46,6 +47,7 @@ public class MainActivity extends AppCompatActivity
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +56,16 @@ public class MainActivity extends AppCompatActivity
         this.app = (StoriesApp) getApplicationContext();
         mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
 
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
+
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                //Log.e(getClass().getSimpleName(), "refresh");
+                setNowMainContent();
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        });
 
         if(this.app.userLoggedIn == null) {
             goLoginScreen();
@@ -85,7 +97,6 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         if(this.app.userLoggedIn != null){ setNowMainContent(); }
     }
-
 
     private void goLoginScreen() {
         Intent intent = new Intent(this, Login.class);
