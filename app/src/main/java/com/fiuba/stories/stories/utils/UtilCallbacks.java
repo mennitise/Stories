@@ -272,6 +272,11 @@ public class UtilCallbacks{
                         this.app.userLoggedIn.setGender("");
                     }
                     try{
+                        this.app.userLoggedIn.setUrlProfilePicture(jsonResponse.get("profilePic").toString());
+                    } catch (JSONException e){
+                        this.app.userLoggedIn.setUrlProfilePicture("");
+                    }
+                    try{
                         this.app.userLoggedIn.setAge(jsonResponse.get("age").toString());
                     } catch (JSONException e){
                         this.app.userLoggedIn.setAge("");
@@ -322,6 +327,7 @@ public class UtilCallbacks{
                     Log.d("USER",jsonResponse.get("lastname").toString());
                     Log.d("USER",jsonResponse.get("age").toString());
                     Log.d("USER",jsonResponse.get("gender").toString());
+                    Log.d("USER",jsonResponse.get("profilePic").toString());
                     if (jsonResponse.get("lastname") != null){
                         this.app.userLoggedIn.setLastName(jsonResponse.get("lastname").toString());
                     }
@@ -337,6 +343,9 @@ public class UtilCallbacks{
                     }
                     if (jsonResponse.get("age") != null){
                         this.app.userLoggedIn.setAge(jsonResponse.get("age").toString());
+                    }
+                    if (jsonResponse.get("profilePic") != null){
+                        this.app.userLoggedIn.setUrlProfilePicture(jsonResponse.get("profilePic").toString());
                     }
                     this.app.userLoggedIn.LOG_USER();
                 } else if (getHTTPResponse().code() == 401){

@@ -85,6 +85,10 @@ public class User {
         this.age = age;
     }
 
+    public void setUrlProfilePicture(String url) {
+        this.urlProfilePicture = url;
+    }
+
     public String getName(){
         if (firstName == null && lastName == null){
             return null;

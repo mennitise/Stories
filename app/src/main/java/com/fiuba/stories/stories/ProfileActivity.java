@@ -1,6 +1,9 @@
 package com.fiuba.stories.stories;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.BitmapRegionDecoder;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -10,26 +13,41 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.fiuba.stories.stories.utils.AppServerRequest;
 import com.fiuba.stories.stories.utils.HttpCallback;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class ProfileActivity extends AppCompatActivity {
 
     StoriesApp app;
+    FirebaseStorage storage;
+    Intent intent = getIntent();
+
     private LinearLayout scrollProfile;
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+
+    public static final String URL_IMAGE_POST = "urlImagePost";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +65,23 @@ public class ProfileActivity extends AppCompatActivity {
         profileBirthday.setText(this.app.userLoggedIn.birthday);
         TextView profileGender = findViewById(R.id.info_profile_gender_view);
         profileGender.setText(this.app.userLoggedIn.gender);
+
+        ImageView picView = (ImageView) this.findViewById(R.id.profile_pic);
+
+        storage = FirebaseStorage.getInstance();
+        String urlImage = this.app.userLoggedIn.urlProfilePicture;
+        if (urlImage != null && urlImage != ""){
+            Log.d("image",urlImage);
+            try {
+                StorageReference httpsReference = storage.getReferenceFromUrl(urlImage);
+                Glide.with(this)
+                        .using(new FirebaseImageLoader())
+                        .load(httpsReference)
+                        .into(picView);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         this.scrollProfile = findViewById(R.id.scroll_profile);
         mRecyclerView = findViewById(R.id.profile_recycler_view);
@@ -68,6 +103,22 @@ public class ProfileActivity extends AppCompatActivity {
                 goToUpdateScreen();
             }
         });
+    }
+
+    public static Bitmap loadBitmap(String url) {
+        Bitmap bitmap = null;
+        InputStream in = null;
+        BufferedOutputStream out = null;
+
+        try {
+            return BitmapFactory.decodeStream((InputStream)new URL(url).getContent());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     private void goToFriendsScreen(){

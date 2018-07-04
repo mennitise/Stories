@@ -5,6 +5,9 @@ import com.fiuba.stories.stories.Post;
 import com.fiuba.stories.stories.PostDetailActivity;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.Console;
+
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Credentials;
@@ -85,14 +88,15 @@ public class AppServerRequest {
         AppServerRequest.post(BASE_URL + USER_SIGNUP, callback, request);
     }
 
-    public static void putProfileInformation(String firstName, String lastName, String email, String birthday, String age, String gender, String token, Callback callback){
+    public static void putProfileInformation(String firstName, String lastName, String email, String birthday, String age, String gender, String profilePic, String token, Callback callback){
         String credential = Credentials.basic(email, token);
         String json =   "{\"username\": \"" + email + "\"," +
                 " \"fisrtname\": \"" + firstName + "\"," +
                 " \"lastname\": \"" + lastName + "\"," +
                 " \"gender\": \"" + gender + "\"," +
                 " \"age\": \"" + age + "\"," +
-                " \"birthday\": \"" + birthday + "\"" +
+                " \"birthday\": \"" + birthday + "\"," +
+                " \"profilePic\": \"" + profilePic + "\"" +
                 "}";
         RequestBody request = RequestBody.create(AppServerRequest.JSON, json);
         AppServerRequest.putWithAuth(BASE_URL + PROFILE_INFO, credential, email, callback, request);
