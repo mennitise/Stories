@@ -322,30 +322,59 @@ public class UtilCallbacks{
                 Log.d("HTTP RESPONSE: ", getHTTPResponse().toString());
                 JSONObject jsonResponse = getJSONResponse();
                 if (getHTTPResponse().code() == 200) {
-                    Log.d("RESPONSE: ", jsonResponse.toString());
-                    Log.d("USER",jsonResponse.get("firstname").toString());
-                    Log.d("USER",jsonResponse.get("lastname").toString());
-                    Log.d("USER",jsonResponse.get("age").toString());
-                    Log.d("USER",jsonResponse.get("gender").toString());
-                    Log.d("USER",jsonResponse.get("profilePic").toString());
-                    if (jsonResponse.get("lastname") != null){
-                        this.app.userLoggedIn.setLastName(jsonResponse.get("lastname").toString());
+                    try{
+                        Log.d("RESPONSE: ", jsonResponse.toString());
+                        Log.d("USER",jsonResponse.get("firstname").toString());
+                        Log.d("USER",jsonResponse.get("lastname").toString());
+                        Log.d("USER",jsonResponse.get("age").toString());
+                        Log.d("USER",jsonResponse.get("gender").toString());
+                        Log.d("USER",jsonResponse.get("profilePic").toString());
+                    }catch (JSONException e){
+                        e.printStackTrace();
                     }
-                    if(jsonResponse.get("firstname") != null) {
-                        this.app.userLoggedIn.setFirstName(jsonResponse.get("firstname").toString());
+
+                    try{
+                        if (jsonResponse.get("lastname") != null){
+                            this.app.userLoggedIn.setLastName(jsonResponse.get("lastname").toString());
+                        }
+                    } catch (JSONException e){
+                        this.app.userLoggedIn.setLastName("Unknown");
+                    }
+                    try{
+                        if(jsonResponse.get("firstname") != null) {
+                            this.app.userLoggedIn.setFirstName(jsonResponse.get("firstname").toString());
+                        }
+                    } catch (JSONException e){
+                        this.app.userLoggedIn.setFirstName("Unknown");
                     }
                     this.app.userLoggedIn.setEmail(this.app.userLoggedIn.getEmail());
-                    if (jsonResponse.get("birthday") != null){
-                        this.app.userLoggedIn.setBirthday(jsonResponse.get("birthday").toString());
+                    try{
+                        if (jsonResponse.get("birthday") != null){
+                            this.app.userLoggedIn.setBirthday(jsonResponse.get("birthday").toString());
+                        }
+                    }catch (JSONException e){
+                        this.app.userLoggedIn.setBirthday("Unknown");
                     }
-                    if (jsonResponse.get("gender") != null){
-                        this.app.userLoggedIn.setGender(jsonResponse.get("gender").toString());
+                    try{
+                        if (jsonResponse.get("gender") != null){
+                            this.app.userLoggedIn.setGender(jsonResponse.get("gender").toString());
+                        }
+                    }catch (JSONException e){
+                        this.app.userLoggedIn.setGender("Unknown");
                     }
-                    if (jsonResponse.get("age") != null){
-                        this.app.userLoggedIn.setAge(jsonResponse.get("age").toString());
+                    try{
+                        if (jsonResponse.get("age") != null){
+                            this.app.userLoggedIn.setAge(jsonResponse.get("age").toString());
+                        }
+                    }catch (JSONException e){
+                        this.app.userLoggedIn.setAge("Unknown");
                     }
-                    if (jsonResponse.get("profilePic") != null){
-                        this.app.userLoggedIn.setUrlProfilePicture(jsonResponse.get("profilePic").toString());
+                    try{
+                        if (jsonResponse.get("profilePic") != null){
+                            this.app.userLoggedIn.setUrlProfilePicture(jsonResponse.get("profilePic").toString());
+                        }
+                    }catch (JSONException e){
+                        this.app.userLoggedIn.setUrlProfilePicture("");
                     }
                     this.app.userLoggedIn.LOG_USER();
                 } else if (getHTTPResponse().code() == 401){
