@@ -188,8 +188,13 @@ public class ProfileActivity extends AppCompatActivity {
                         } else {
                             privacity = Post.privacity_private;
                         }
-
-                        posts.add(new Post(id, title, description, R.drawable.stories_splash, ownerUser, privacity, url));
+                        int type;
+                        try {
+                            type = storyDetails.getInt("type");
+                        }catch (JSONException e){
+                            type = Post.TYPE_IMAGE;
+                        }
+                        posts.add(new Post(id, title, description, R.drawable.stories_splash, ownerUser, privacity, url, type));
                     }
                     ProfileActivity.this.runOnUiThread(new SetResults());
                 /*

@@ -130,6 +130,12 @@ public class AlienProfileActivity extends AppCompatActivity {
                         }catch (JSONException e){
                             url = "Private";
                         }
+                        int type;
+                        try {
+                            type = storyDetails.getInt("type");
+                        }catch (JSONException e){
+                            type = Post.TYPE_IMAGE;
+                        }
                         int privacity;
                         if (state == "Public"){
                             privacity = Post.privacity_public;
@@ -137,7 +143,7 @@ public class AlienProfileActivity extends AppCompatActivity {
                             privacity = Post.privacity_private;
                         }
 
-                        posts.add(new Post(id, title, description, R.drawable.stories_splash, ownerUser, privacity, url));
+                        posts.add(new Post(id, title, description, R.drawable.stories_splash, ownerUser, privacity, url, type));
                     }
                     AlienProfileActivity.this.runOnUiThread(new AlienProfileActivity.CallbackRequestGetALienStories.SetResults());
                 }
