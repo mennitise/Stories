@@ -26,6 +26,7 @@ import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.fiuba.stories.stories.utils.AppServerRequest;
 import com.fiuba.stories.stories.utils.HttpCallback;
@@ -37,6 +38,8 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.zomato.photofilters.SampleFilters;
 import com.zomato.photofilters.imageprocessors.Filter;
+
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -58,6 +61,9 @@ public class CreateStoryActivity extends AppCompatActivity {
     private ImageButton mediaUpload;
     private ImageButton videoUpload;
     private ImageButton takePhoto;
+    private ImageButton clear_selected;
+    private ImageView preview_image;
+    private VideoView preview_video;
     private FirebaseStorage storage;
     private StorageReference storageRef;
 
@@ -102,6 +108,19 @@ public class CreateStoryActivity extends AppCompatActivity {
         selectedVideo = null;
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
+
+        preview_image = findViewById(R.id.preview_image);
+        preview_video = findViewById(R.id.preview_video);
+        clear_selected = findViewById(R.id.clear_selection);
+        clear_selected.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                selectedImage = null;
+                selectedVideo = null;
+                typeMedia = TypeMedia.NONE;
+                showButtons();
+            }
+        });
 
         takePhoto = findViewById(R.id.take_media);
         takePhoto.setOnClickListener(new View.OnClickListener() {
@@ -322,6 +341,22 @@ public class CreateStoryActivity extends AppCompatActivity {
         return image;
     }
 
+    private void hideButtons(){
+        mediaUpload.setVisibility(View.INVISIBLE);
+        videoUpload.setVisibility(View.INVISIBLE);
+        takePhoto.setVisibility(View.INVISIBLE);
+        clear_selected.setVisibility(View.VISIBLE);
+    }
+
+    private void showButtons(){
+        mediaUpload.setVisibility(View.VISIBLE);
+        videoUpload.setVisibility(View.VISIBLE);
+        takePhoto.setVisibility(View.VISIBLE);
+        preview_image.setVisibility(View.INVISIBLE);
+        preview_video.setVisibility(View.INVISIBLE);
+        clear_selected.setVisibility(View.INVISIBLE);
+    }
+
     private void setFilter(){
         if(typeMedia == TypeMedia.NONE){
             return;
@@ -343,7 +378,7 @@ public class CreateStoryActivity extends AppCompatActivity {
         if(currentFilter == null){
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
-                mediaUpload.setImageBitmap(bitmap);
+                preview_image.setImageBitmap(bitmap);
 
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -357,7 +392,7 @@ public class CreateStoryActivity extends AppCompatActivity {
         filtered = currentFilter.processFilter(filtered);
 
         //selectedImage = getImageUri(getBaseContext(), filtered);
-        mediaUpload.setImageBitmap(filtered);
+        preview_image.setImageBitmap(filtered);
     }
 
     private void setCameraFilter(){
@@ -365,7 +400,7 @@ public class CreateStoryActivity extends AppCompatActivity {
         if(currentFilter == null){
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
-                takePhoto.setImageBitmap(bitmap);
+                preview_image.setImageBitmap(bitmap);
 
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -379,7 +414,7 @@ public class CreateStoryActivity extends AppCompatActivity {
         filtered = currentFilter.processFilter(filtered);
 
         //selectedImage = getImageUri(getBaseContext(), filtered);
-        takePhoto.setImageBitmap(filtered);
+        preview_image.setImageBitmap(filtered);
     }
 
     private void saveFilteredToFile(){
@@ -428,13 +463,13 @@ public class CreateStoryActivity extends AppCompatActivity {
             Log.d("Uri Image: ", selectedImage.toString());
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
-                mediaUpload.setImageBitmap(bitmap);
+                preview_image.setImageBitmap(bitmap);
+                preview_image.setVisibility(View.VISIBLE);
+                hideButtons();
+
                 typeMedia = TypeMedia.MEDIA;
-                videoUpload.setEnabled(false);
-                takePhoto.setEnabled(false);
                 setMediaFilter();
-                takePhoto.setImageResource(android.R.color.transparent);
-                videoUpload.setImageResource(android.R.color.transparent);
+                saveFilteredToFile();
 
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -446,27 +481,22 @@ public class CreateStoryActivity extends AppCompatActivity {
 //            Bundle extras = data.getExtras();
 //            Bitmap imageBitmap = (Bitmap) extras.get("data");
 //            takePhoto.setImageBitmap(imageBitmap);
-            mediaUpload.setImageResource(android.R.color.transparent);
-            videoUpload.setImageResource(android.R.color.transparent);
-
             bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
             selectedImage = Uri.fromFile(new File(mCurrentPhotoPath));
-            takePhoto.setImageBitmap(bitmap);
+            preview_image.setImageBitmap(bitmap);
+            hideButtons();
+            preview_image.setVisibility(View.VISIBLE);
             typeMedia = TypeMedia.CAMERA;
-            mediaUpload.setEnabled(false);
-            videoUpload.setEnabled(false);
         }
         if(requestCode==GET_VIDEO_FROM_GALLERY && resultCode == Activity.RESULT_OK){
             selectedVideo = data.getData();
             Log.d("Uri Video: ", selectedVideo.toString());
 
-
-            mediaUpload.setImageResource(android.R.color.transparent);
-            takePhoto.setImageResource(android.R.color.transparent);
+            preview_video.setVisibility(View.VISIBLE);
+            preview_video.setVideoURI(selectedVideo);
+            preview_video.start();
+            hideButtons();
             typeMedia = TypeMedia.VIDEO;
-
-            mediaUpload.setEnabled(false);
-            takePhoto.setEnabled(false);
 
             //selectedPath = getPath(selectedImageUri);
             //textView.setText(selectedPath);
@@ -481,10 +511,12 @@ public class CreateStoryActivity extends AppCompatActivity {
         @Override
         public void onResponse() {
             try{
-                Log.d("ERRRRRROOOOOOORRRRRR",getHTTPResponse().toString());
-
+                Log.d("HTTP RESPONSE",getHTTPResponse().toString());
+                JSONObject jsonResponse = getJSONResponse();
                 if (getHTTPResponse().code() == 200) {
-                    CreateStoryActivity.this.runOnUiThread(new CreateStoryActivity.CallbackRequestPostStory.SetResults());
+                    Log.d("JSON RESPONSE",getJSONResponse().toString());
+                    String storyId = (String) jsonResponse.get("storyId");
+                    CreateStoryActivity.this.runOnUiThread(new CreateStoryActivity.CallbackRequestPostStory.SetResults(storyId));
                 /*
                 } else if (getHTTPResponse().code() == 401){
                     Toast.makeText(getBaseContext(), "ERROR 401", Toast.LENGTH_LONG).show();
@@ -492,7 +524,6 @@ public class CreateStoryActivity extends AppCompatActivity {
                     Toast.makeText(getBaseContext(), "ERROR 400", Toast.LENGTH_LONG).show();
                 */
                 }
-
             } catch (Exception e) {
                 Log.e("TEST REQUEST CALLBACK", "Error");
                 e.printStackTrace();
@@ -500,13 +531,21 @@ public class CreateStoryActivity extends AppCompatActivity {
         }
 
         class SetResults implements Runnable{
+
+            String storyId;
+
+            public SetResults(String storyId){
+                this.storyId = storyId;
+            }
+
             @Override
             public void run(){
                 Toast.makeText(getBaseContext(), "Published", Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(getBaseContext(), PostDetailActivity.class);
-                intent.putExtra(PostDetailActivity.ID_POST, id);
+                intent.putExtra(PostDetailActivity.ID_POST, this.storyId);
                 intent.putExtra(PostDetailActivity.TITLE_POST, title);
                 intent.putExtra(PostDetailActivity.DESCRIPTION_POST, description);
+                intent.putExtra(PostDetailActivity.USERNAME_POST, app.userLoggedIn.email);
                 intent.putExtra(PostDetailActivity.NAME_AUTHOR_POST, app.userLoggedIn.getName());
                 intent.putExtra(PostDetailActivity.IMAGE_POST, 0);
                 intent.putExtra(PostDetailActivity.URL_IMAGE_POST, urlImage);

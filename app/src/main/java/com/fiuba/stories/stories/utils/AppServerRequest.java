@@ -9,6 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Console;
+import java.sql.Timestamp;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -266,8 +267,10 @@ public class AppServerRequest {
         JSONObject json = new JSONObject();
         JSONObject data = new JSONObject();
         try{
+            Timestamp timestamp = new Timestamp(System.currentTimeMillis());
             data.put("title",title);
             data.put("body",description);
+            data.put("timestamp",timestamp.getTime());
             json.put("to", "/topics/"+topic);
             json.put("notification", data);
         } catch (JSONException e) {
