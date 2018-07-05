@@ -207,6 +207,7 @@ public class CreateStoryActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (selectedImage != null) {
+                    saveFilteredToFile();
                     type = Post.TYPE_IMAGE;
                     all.setVisibility(View.INVISIBLE);
                     loading.setVisibility(View.VISIBLE);
@@ -333,7 +334,7 @@ public class CreateStoryActivity extends AppCompatActivity {
             return;
         }
         if(typeMedia == TypeMedia.CAMERA){
-            //setMediaFilter();
+            setCameraFilter();
             return;
         }
     }
@@ -357,6 +358,28 @@ public class CreateStoryActivity extends AppCompatActivity {
 
         //selectedImage = getImageUri(getBaseContext(), filtered);
         mediaUpload.setImageBitmap(filtered);
+    }
+
+    private void setCameraFilter(){
+        // Apply filter
+        if(currentFilter == null){
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+                takePhoto.setImageBitmap(bitmap);
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return;
+        }
+        Log.d("Filter:", "Aplied BlueMessFilter");
+        Bitmap filtered = this.bitmap.copy(this.bitmap.getConfig(), true);
+        filtered = currentFilter.processFilter(filtered);
+
+        //selectedImage = getImageUri(getBaseContext(), filtered);
+        takePhoto.setImageBitmap(filtered);
     }
 
     private void saveFilteredToFile(){
@@ -410,7 +433,6 @@ public class CreateStoryActivity extends AppCompatActivity {
                 videoUpload.setEnabled(false);
                 takePhoto.setEnabled(false);
                 setMediaFilter();
-                saveFilteredToFile();
                 takePhoto.setImageResource(android.R.color.transparent);
                 videoUpload.setImageResource(android.R.color.transparent);
 
