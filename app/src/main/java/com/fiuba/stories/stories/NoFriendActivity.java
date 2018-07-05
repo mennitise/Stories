@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.fiuba.stories.stories.utils.AppServerRequest;
 import com.fiuba.stories.stories.utils.HttpCallback;
+import com.fiuba.stories.stories.utils.MyFirebaseCloudMessagingConfigure;
 import com.fiuba.stories.stories.utils.UtilCallbacks;
 
 import org.json.JSONArray;
@@ -102,12 +103,9 @@ public class NoFriendActivity extends AppCompatActivity {
             try{
                 Log.d("HTTP RESPONSE: ", getHTTPResponse().toString());
                 if (getHTTPResponse().code() == 200) {
-                    String titleNotification = "Recibiste una solicitud de amistad";
-                    String descNotification = user.getName()+" te ha agregado";
-                    String topicNotification = user.getEmail().replace('.', '-').replace('@','_');
-                    UtilCallbacks util = new UtilCallbacks();
 
-                    AppServerRequest.postMessageToTopic(titleNotification,descNotification,topicNotification, util.getCallbackRequestPostNotification());
+                    MyFirebaseCloudMessagingConfigure.sendFriendInvitation(app.userLoggedIn.getName(), user.getEmail());
+
                     NoFriendActivity.this.runOnUiThread(new NoFriendActivity.CallbackRequestPostInvitation.SetResults());
                 /*
                 } else if (getHTTPResponse().code() == 401){

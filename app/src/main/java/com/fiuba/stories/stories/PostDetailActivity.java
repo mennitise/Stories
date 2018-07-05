@@ -26,6 +26,7 @@ import com.bumptech.glide.Glide;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.fiuba.stories.stories.utils.AppServerRequest;
 import com.fiuba.stories.stories.utils.HttpCallback;
+import com.fiuba.stories.stories.utils.MyFirebaseCloudMessagingConfigure;
 import com.fiuba.stories.stories.utils.UtilCallbacks;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -325,6 +326,9 @@ public class PostDetailActivity extends AppCompatActivity {
                     Log.d("HTTP RESPONSE: ", getHTTPResponse().toString());
                     JSONObject jsonResponse = getJSONResponse();
                     Log.d("RESPONSE: ", jsonResponse.toString());
+                    if (usernameAuthor != null && usernameAuthor != app.userLoggedIn.email){
+                        MyFirebaseCloudMessagingConfigure.reactToStory(app.userLoggedIn.getName(), usernameAuthor);
+                    }
                     this.callUI.run();
                 } else {
 
@@ -344,6 +348,9 @@ public class PostDetailActivity extends AppCompatActivity {
                     Log.d("HTTP RESPONSE: ", getHTTPResponse().toString());
                     JSONObject jsonResponse = getJSONResponse();
                     Log.d("RESPONSE: ", jsonResponse.toString());
+                    if (usernameAuthor != null && usernameAuthor != app.userLoggedIn.email){
+                        MyFirebaseCloudMessagingConfigure.commentStory(app.userLoggedIn.getName(), usernameAuthor);
+                    }
                     AppServerRequest.getComments(app.userLoggedIn.getEmail(),app.userLoggedIn.token,id,new CallbackRequestGetComment());
                 }
             } catch (Exception e) {

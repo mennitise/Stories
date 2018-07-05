@@ -16,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.fiuba.stories.stories.utils.AppServerRequest;
+import com.fiuba.stories.stories.utils.MyFirebaseCloudMessagingConfigure;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -77,6 +78,7 @@ public class ChatFriendActivity extends AppCompatActivity {
                     } else {
                         dbRef.push().setValue(new MessageSend(app.userLoggedIn.getEmail(), message.getText().toString(), ServerValue.TIMESTAMP));
                         dbRefReceptor.push().setValue(new MessageSend(app.userLoggedIn.getEmail(), message.getText().toString(), ServerValue.TIMESTAMP));
+                        MyFirebaseCloudMessagingConfigure.chatFriend(app.userLoggedIn.getName(), receptor, message.getText().toString());
                         message.setText("");
                     }
                     return true;
@@ -90,6 +92,7 @@ public class ChatFriendActivity extends AppCompatActivity {
             public void onClick(View v) {
                 dbRef.push().setValue(new MessageSend(app.userLoggedIn.getEmail(), message.getText().toString(), ServerValue.TIMESTAMP));
                 dbRefReceptor.push().setValue(new MessageSend(app.userLoggedIn.getEmail(), message.getText().toString(), ServerValue.TIMESTAMP));
+                MyFirebaseCloudMessagingConfigure.chatFriend(app.userLoggedIn.getName(), receptor, message.getText().toString());
                 message.setText("");
             }
         });

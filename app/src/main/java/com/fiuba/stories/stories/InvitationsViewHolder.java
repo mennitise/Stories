@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import com.fiuba.stories.stories.utils.AppServerRequest;
 import com.fiuba.stories.stories.utils.HttpCallback;
+import com.fiuba.stories.stories.utils.MyFirebaseCloudMessagingConfigure;
 import com.fiuba.stories.stories.utils.UtilCallbacks;
 
 import org.json.JSONArray;
@@ -44,7 +45,7 @@ public class InvitationsViewHolder  extends RecyclerView.ViewHolder {
             @Override
             public void onClick(final View v) {
                 v.setVisibility(View.INVISIBLE);
-                AppServerRequest.putAceptInvitation(userlogged.getEmail(),userlogged.token,(String) user.getText(),new CallbackRequestAceptInvitation());
+                AppServerRequest.putAceptInvitation(userlogged.getEmail(),userlogged.token,(String) user.getText(),new CallbackRequestAceptInvitation(userlogged.getName(), user.getText().toString()));
             }
         });
     }
@@ -63,6 +64,15 @@ public class InvitationsViewHolder  extends RecyclerView.ViewHolder {
     }
 
     public class CallbackRequestAceptInvitation extends HttpCallback {
+
+        private String myName;
+        private String aceptedFriend;
+
+        public CallbackRequestAceptInvitation(String myName, String aceptedFriend){
+            this.myName = myName;
+            this.aceptedFriend = aceptedFriend;
+        }
+
         @Override
         public void onResponse() {
             try{
@@ -71,6 +81,7 @@ public class InvitationsViewHolder  extends RecyclerView.ViewHolder {
 
                 if (getHTTPResponse().code() == 200) {
                     Log.d("RESPONSE: ", jsonResponse.toString());
+                    MyFirebaseCloudMessagingConfigure.aceptFriendInvitation(this.myName, this.aceptedFriend);
                 /*
                 } else if (getHTTPResponse().code() == 401){
                     Toast.makeText(getBaseContext(), "ERROR 401", Toast.LENGTH_LONG).show();
