@@ -72,6 +72,7 @@ public class CreateStoryActivity extends AppCompatActivity {
     private RadioGroup mPrivacity;
     private LinearLayout all;
     private ProgressBar loading;
+    private Spinner spinner;
 
     private String id;
     private String title;
@@ -170,7 +171,7 @@ public class CreateStoryActivity extends AppCompatActivity {
         mDescription = findViewById(R.id.description_create_post);
         mPrivacity = findViewById(R.id.radio_privacity);
 
-        Spinner spinner = (Spinner) findViewById(R.id.filter_spinner);
+        spinner = (Spinner) findViewById(R.id.filter_spinner);
         spinner.setPrompt("Choose a Filter");
         // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
@@ -220,6 +221,8 @@ public class CreateStoryActivity extends AppCompatActivity {
 
             }
         });
+
+        spinner.setVisibility(View.INVISIBLE);
 
         Button publish = findViewById(R.id.publish_story);
         publish.setOnClickListener(new View.OnClickListener() {
@@ -355,6 +358,7 @@ public class CreateStoryActivity extends AppCompatActivity {
         preview_image.setVisibility(View.INVISIBLE);
         preview_video.setVisibility(View.INVISIBLE);
         clear_selected.setVisibility(View.INVISIBLE);
+        spinner.setVisibility(View.INVISIBLE);
     }
 
     private void setFilter(){
@@ -465,6 +469,7 @@ public class CreateStoryActivity extends AppCompatActivity {
                 bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
                 preview_image.setImageBitmap(bitmap);
                 preview_image.setVisibility(View.VISIBLE);
+                spinner.setVisibility(View.VISIBLE);
                 hideButtons();
 
                 typeMedia = TypeMedia.MEDIA;
@@ -486,6 +491,7 @@ public class CreateStoryActivity extends AppCompatActivity {
             preview_image.setImageBitmap(bitmap);
             hideButtons();
             preview_image.setVisibility(View.VISIBLE);
+            spinner.setVisibility(View.VISIBLE);
             typeMedia = TypeMedia.CAMERA;
         }
         if(requestCode==GET_VIDEO_FROM_GALLERY && resultCode == Activity.RESULT_OK){
