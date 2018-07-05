@@ -155,4 +155,15 @@
     <string name="title_activity_mapastest">Map</string>
     <string name="title_activity_no_friend">NoFriendActivity</string>
     <string name="title_activity_profile_update">Profile Update</string>
+    <string name="spinner_title">Choose a Filter</string>
+
+    <string-array name="filter_array">
+        <item>Mercury</item>
+        <item>Venus</item>
+        <item>Earth</item>
+        <item>Mars</item>
+        <item>Jupiter</item>
+        <item>Saturn</item>
+        <item>Neptune</item>
+    </string-array>
 </resources>

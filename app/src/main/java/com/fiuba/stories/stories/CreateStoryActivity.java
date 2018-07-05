@@ -1,6 +1,7 @@
 package com.fiuba.stories.stories;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -14,12 +15,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.fiuba.stories.stories.utils.AppServerRequest;
@@ -30,12 +35,17 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.zomato.photofilters.SampleFilters;
+import com.zomato.photofilters.imageprocessors.Filter;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
 
 public class CreateStoryActivity extends AppCompatActivity {
 
@@ -66,14 +76,28 @@ public class CreateStoryActivity extends AppCompatActivity {
     int type;
     private Uri selectedImage;
     private Uri selectedVideo;
+    private Bitmap bitmap;
+    private Filter currentFilter = null;
+    private String currentType = null;
 
     static final int GET_VIDEO_FROM_GALLERY = 2;
+
+    public enum TypeMedia {
+        NONE,
+        MEDIA,
+        CAMERA,
+        VIDEO;
+    };
+
+    public TypeMedia typeMedia = TypeMedia.NONE;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.app = (StoriesApp) getApplicationContext();
         setContentView(R.layout.activity_create_story);
+        System.loadLibrary("NativeImageProcessor");
+
         selectedImage = null;
         selectedVideo = null;
         storage = FirebaseStorage.getInstance();
@@ -126,6 +150,57 @@ public class CreateStoryActivity extends AppCompatActivity {
         mTitle = findViewById(R.id.title_create_post);
         mDescription = findViewById(R.id.description_create_post);
         mPrivacity = findViewById(R.id.radio_privacity);
+
+        Spinner spinner = (Spinner) findViewById(R.id.filter_spinner);
+        spinner.setPrompt("Choose a Filter");
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.filter_array, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+        {
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+            {
+                String selectedItem = parent.getItemAtPosition(position).toString();
+                if(selectedItem.equals("Mercury"))
+                {
+                    currentFilter = SampleFilters.getBlueMessFilter();
+                    setFilter();
+                }
+                if(selectedItem.equals("Venus"))
+                {
+                    currentFilter = SampleFilters.getAweStruckVibeFilter();
+                    setFilter();
+                }
+                if(selectedItem.equals("Earth"))
+                {
+                    currentFilter = null;
+                    setFilter();
+                }
+                if(selectedItem.equals("Jupiter"))
+                {
+                    currentFilter = SampleFilters.getStarLitFilter();
+                    setFilter();
+                }
+                if(selectedItem.equals("Saturn"))
+                {
+                    currentFilter = SampleFilters.getLimeStutterFilter();
+                    setFilter();
+                }
+                if(selectedItem.equals("Neptune"))
+                {
+                    currentFilter = SampleFilters.getNightWhisperFilter();
+                    setFilter();
+                }
+            } // to close the onItemSelected
+            public void onNothingSelected(AdapterView<?> parent)
+            {
+
+            }
+        });
 
         Button publish = findViewById(R.id.publish_story);
         publish.setOnClickListener(new View.OnClickListener() {
@@ -246,6 +321,80 @@ public class CreateStoryActivity extends AppCompatActivity {
         return image;
     }
 
+    private void setFilter(){
+        if(typeMedia == TypeMedia.NONE){
+            return;
+        }
+        if(typeMedia == TypeMedia.VIDEO){
+            return;
+        }
+        if(typeMedia == TypeMedia.MEDIA){
+            setMediaFilter();
+            return;
+        }
+        if(typeMedia == TypeMedia.CAMERA){
+            //setMediaFilter();
+            return;
+        }
+    }
+    private void setMediaFilter(){
+        // Apply filter
+        if(currentFilter == null){
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+                mediaUpload.setImageBitmap(bitmap);
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return;
+        }
+        Log.d("Filter:", "Aplied BlueMessFilter");
+        Bitmap filtered = this.bitmap.copy(this.bitmap.getConfig(), true);
+        filtered = currentFilter.processFilter(filtered);
+
+        //selectedImage = getImageUri(getBaseContext(), filtered);
+        mediaUpload.setImageBitmap(filtered);
+    }
+
+    private void saveFilteredToFile(){
+        if(currentFilter == null){
+            return;
+        }
+        Bitmap filtered = this.bitmap.copy(this.bitmap.getConfig(), true);
+        filtered = currentFilter.processFilter(filtered);
+        File photoFile = null;
+        try {
+            photoFile = createImageFile();
+        } catch (IOException ex) {
+
+        }
+        // Continue only if the File was successfully created
+        if (photoFile != null) {
+            Uri photoURI = FileProvider.getUriForFile(getBaseContext(),
+                    "com.fiuba.stories.stories",
+                    photoFile);
+            try {
+                FileOutputStream fout;
+                fout = new FileOutputStream(photoFile);
+                filtered.compress(Bitmap.CompressFormat.PNG, 70, fout);
+                fout.flush();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            selectedImage = photoURI;
+        }
+    }
+
+    private Uri getImageUri(Context context, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -254,13 +403,16 @@ public class CreateStoryActivity extends AppCompatActivity {
         if(requestCode==GET_FROM_GALLERY && resultCode == Activity.RESULT_OK) {
             selectedImage = data.getData();
             Log.d("Uri Image: ", selectedImage.toString());
-            Bitmap bitmap;
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
                 mediaUpload.setImageBitmap(bitmap);
+                typeMedia = TypeMedia.MEDIA;
                 videoUpload.setEnabled(false);
                 takePhoto.setEnabled(false);
-                //takePhoto.setImageResource(android.R.color.transparent);
+                setMediaFilter();
+                saveFilteredToFile();
+                takePhoto.setImageResource(android.R.color.transparent);
+                videoUpload.setImageResource(android.R.color.transparent);
 
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -273,10 +425,12 @@ public class CreateStoryActivity extends AppCompatActivity {
 //            Bitmap imageBitmap = (Bitmap) extras.get("data");
 //            takePhoto.setImageBitmap(imageBitmap);
             mediaUpload.setImageResource(android.R.color.transparent);
+            videoUpload.setImageResource(android.R.color.transparent);
 
-            Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
+            bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
             selectedImage = Uri.fromFile(new File(mCurrentPhotoPath));
             takePhoto.setImageBitmap(bitmap);
+            typeMedia = TypeMedia.CAMERA;
             mediaUpload.setEnabled(false);
             videoUpload.setEnabled(false);
         }
@@ -284,6 +438,10 @@ public class CreateStoryActivity extends AppCompatActivity {
             selectedVideo = data.getData();
             Log.d("Uri Video: ", selectedVideo.toString());
 
+
+            mediaUpload.setImageResource(android.R.color.transparent);
+            takePhoto.setImageResource(android.R.color.transparent);
+            typeMedia = TypeMedia.VIDEO;
 
             mediaUpload.setEnabled(false);
             takePhoto.setEnabled(false);

@@ -45,4 +45,6 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging:11.4.2'
     // FirebaseUI Storage only
     implementation 'com.firebaseui:firebase-ui-storage:0.6.0'
+    // Filters
+    implementation 'com.github.zomato:androidphotofilters:1.0.1'
 }

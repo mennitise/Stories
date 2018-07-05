@@ -48,6 +48,13 @@
                 />
         </LinearLayout>
 
+        <Spinner
+            android:id="@+id/filter_spinner"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="15dp"
+            android:prompt="@string/spinner_title"/>
+
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -75,6 +82,7 @@
                 android:maxLines="1"/>
 
         </android.support.design.widget.TextInputLayout>
+
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
