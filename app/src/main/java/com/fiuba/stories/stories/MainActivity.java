@@ -28,7 +28,9 @@ import com.facebook.AccessToken;
 import com.facebook.login.LoginManager;
 import com.fiuba.stories.stories.utils.AppServerRequest;
 import com.fiuba.stories.stories.utils.HttpCallback;
+import com.fiuba.stories.stories.utils.MyFirebaseCloudMessagingConfigure;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -47,6 +49,7 @@ public class MainActivity extends AppCompatActivity
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private MyFirebaseCloudMessagingConfigure FCMConfigure;
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
     @Override
@@ -54,10 +57,22 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         this.app = (StoriesApp) getApplicationContext();
+        this.FCMConfigure = new MyFirebaseCloudMessagingConfigure(this.app);
         mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
 
-        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
+        if (this.app.userLoggedIn == null) {
+            goLoginScreen();
+        } else {
+            if (this.app.userLoggedIn.getEmail() != null){
+                this.FCMConfigure.suscribeTopics();
+            }
+        }
 
+        // Get token
+        this.app.FCMtoken = FirebaseInstanceId.getInstance().getToken();
+        Log.d("FCM TOKEN", this.app.FCMtoken);
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -66,10 +81,6 @@ public class MainActivity extends AppCompatActivity
                 mSwipeRefreshLayout.setRefreshing(false);
             }
         });
-
-        if(this.app.userLoggedIn == null) {
-            goLoginScreen();
-        }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("Home");
@@ -148,6 +159,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void logout() {
+        this.FCMConfigure.unsuscribeTopics();
         ((StoriesApp) getApplicationContext()).userLoggedIn = null;
 
         LoginManager.getInstance().logOut();

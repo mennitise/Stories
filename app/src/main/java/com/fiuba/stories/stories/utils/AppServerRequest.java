@@ -3,6 +3,8 @@ package com.fiuba.stories.stories.utils;
 import android.util.Log;
 import com.fiuba.stories.stories.Post;
 import com.fiuba.stories.stories.PostDetailActivity;
+import com.fiuba.stories.stories.R;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -31,6 +33,9 @@ public class AppServerRequest {
     private static final String COMMENTS = "/api/comments";
     private static final String REACTIONS = "/api/reactions";
     private static final String SEARCH = "/api/people";
+
+    private static final String FCM_URL = "https://fcm.googleapis.com/fcm/send";
+
     private static final OkHttpClient client = new OkHttpClient();
     public static final MediaType JSON = MediaType.parse("application/json");
 
@@ -75,7 +80,7 @@ public class AppServerRequest {
         try {
             json.put("username", email);
             json.put("fbToken", fbToken);
-            json.put("firstname",firstName);
+            json.put("fisrtname",firstName);
             json.put("lastname",lastName);
             json.put("gender",gender);
             json.put("age",age);
@@ -253,6 +258,34 @@ public class AppServerRequest {
 
     public static void upServer(Callback callback){
         AppServerRequest.get(BASE_URL + PING,callback);
+    }
+
+    //----------------------------------------------------------------------------------------------
+
+    public static void postMessageToTopic(String title, String description, String topic, Callback callback){
+        JSONObject json = new JSONObject();
+        JSONObject data = new JSONObject();
+        try{
+            data.put("title",title);
+            data.put("body",description);
+            json.put("to", "/topics/"+topic);
+            json.put("notification", data);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+        Log.d("JSON", json.toString());
+
+        RequestBody body = RequestBody.create(AppServerRequest.JSON, json.toString());
+
+        Request request = new Request.Builder()
+                .url(FCM_URL)
+                .post(body)
+                .header("Authorization", "key=AIzaSyBLUmgTz8Rw6RICWZDGTKMbiSwwjyjIXsM")
+                .header("Content-Type","application/json")
+                .build();
+        Call call = client.newCall(request);
+        call.enqueue(callback);
     }
 
     //----------------------------------------------------------------------------------------------

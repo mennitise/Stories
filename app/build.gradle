@@ -43,6 +43,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-database:11.4.2'
     implementation 'com.google.firebase:firebase-auth:11.4.2'
     implementation 'com.google.firebase:firebase-messaging:11.4.2'
+    implementation 'com.firebase:firebase-jobdispatcher:0.8.5'
     // FirebaseUI Storage only
     implementation 'com.firebaseui:firebase-ui-storage:0.6.0'
     // Filters

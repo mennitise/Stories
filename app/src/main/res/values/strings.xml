@@ -2,6 +2,8 @@
     <string name="app_name">Stories</string>
     <string name="facebook_app_id">160957341282324</string>
 
+    <string name="default_notification_channel_id">defaultChannel</string>
+    <string name="FCM_LEGACY_KEY">AIzaSyBLUmgTz8Rw6RICWZDGTKMbiSwwjyjIXsM</string>
 
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>

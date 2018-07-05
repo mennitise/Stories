@@ -151,6 +151,27 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                                     ((StoriesApp) getApplicationContext()).userLoggedIn.setGender();
 
                                     */
+                                    Runnable runner200 = new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(getBaseContext(), "Login Successful.", Toast.LENGTH_LONG).show();
+                                        }
+                                    };
+                                    Runnable runner401 = new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(getBaseContext(), "The email or password you entered is not valid. Please try again.", Toast.LENGTH_LONG).show();
+                                            showProgress(false);
+                                        }
+                                    };
+                                    Runnable runner400 = new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(getBaseContext(), "The login fails. Please try again.", Toast.LENGTH_LONG).show();
+                                            showProgress(false);
+                                        }
+                                    };
+
                                     UtilCallbacks util = new UtilCallbacks();
                                     // String firstName, String lastName, String email, String birthday, String age, String gender, String fbToken, Callback callback
                                     AppServerRequest.registerFacebookUser(  graphResponse.getString("first_name"),
@@ -160,7 +181,7 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                                                                             "99",
                                                                             "male",
                                                                             fbToken.toString(),
-                                                                            util.getCallbackRequestRegisterFacebook());
+                                                                            util.getCallbackRequestRegisterFacebook(graphResponse.getString("email"), app, that, MainActivity.class, runner200, runner401, runner400));
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
