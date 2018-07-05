@@ -50,8 +50,8 @@ public class UtilCallbacks{
         return new CallbackRequestGetNoFriendProfile(username, profileActivityClass, activity, vRunner401, vRunner400);
     }
 
-    public CallbackRequestRegisterFacebook getCallbackRequestRegisterFacebook(){
-        return new CallbackRequestRegisterFacebook();
+    public CallbackRequestRegisterFacebook getCallbackRequestRegisterFacebook(String vUsername, StoriesApp app, Login loginActivity, Class<MainActivity> mainActivityClass, Runnable vRunner200, Runnable vRunner401, Runnable vRunner400){
+        return new CallbackRequestRegisterFacebook(vUsername, app, loginActivity, mainActivityClass, vRunner200, vRunner401, vRunner400);
     }
 
     public CallbackRequestPostNotification getCallbackRequestPostNotification(){
@@ -148,11 +148,22 @@ public class UtilCallbacks{
     }
 
     public class CallbackRequestRegisterFacebook extends HttpCallback {
+        String response;
         String username;
         StoriesApp app;
-        RegisterActivity registerActivity;
+        Login loginActivity;
         Class<MainActivity> mainActivityClass;
-        public CallbackRequestRegisterFacebook() {
+        Runnable runner200;
+        Runnable runner401;
+        Runnable runner400;
+        public CallbackRequestRegisterFacebook(String vUsername, StoriesApp app, Login loginActivity, Class<MainActivity> mainActivityClass, Runnable vRunner200, Runnable vRunner401, Runnable vRunner400) {
+            this.username = vUsername;
+            this.app = app;
+            this.loginActivity = loginActivity;
+            this.mainActivityClass = mainActivityClass;
+            this.runner200 = vRunner200;
+            this.runner401 = vRunner401;
+            this.runner400 = vRunner400;
         }
 
         @Override
@@ -160,17 +171,14 @@ public class UtilCallbacks{
             try {
                 Log.d("HTTP RESPONSE: ", getHTTPResponse().toString());
                 Log.d("HTTP RESPONSE: ", "code = " + getHTTPResponse().code());
-                /*
                 if (getHTTPResponse().code() == 200) {
                     Log.d("RESPONSE: ", getJSONResponse().toString());
-
-                    new Handler(Looper.getMainLooper()).post(this.runner200);
                     String token = jsonResponse.get("Token").toString();
                     User currentUser = new User("","",username,"");
                     currentUser.setCurrentToken(token, false);
                     currentUser.LOG_USER();
                     this.app.userLoggedIn = currentUser;
-                    AppServerRequest.getProfileInformation(this.username, token, new UtilCallbacks.CallbackRequestGetProfileFromRegister(this.app, this.registerActivity, this.mainActivityClass, this.runner401, this.runner400));
+                    AppServerRequest.getProfileInformation(this.username, token, new UtilCallbacks.CallbackRequestGetProfileFromFacebookLogin(this.app, this.loginActivity, this.mainActivityClass, this.runner401, this.runner400));
                 } else if (getHTTPResponse().code() == 401){
                     // The user is already registered
                     new Handler(Looper.getMainLooper()).post(this.runner401);
@@ -178,7 +186,7 @@ public class UtilCallbacks{
                     // The registration fails
                     new Handler(Looper.getMainLooper()).post(this.runner400);
                 }
-                */
+
             } catch (Exception e) {
                 Log.e("TEST REQUEST CALLBACK", "Error");
                 e.printStackTrace();
@@ -395,6 +403,101 @@ public class UtilCallbacks{
                 Intent intent = new Intent(this.registerActivity, this.mainActivityClass);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 this.registerActivity.startActivity(intent);
+                //this.loginActivity.goMainScreen();
+            } catch (Exception e) {
+                Log.e("TEST REQUEST CALLBACK", "Error");
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public class CallbackRequestGetProfileFromFacebookLogin extends HttpCallback {
+        StoriesApp app;
+        Login loginActivity;
+        Class<MainActivity> mainActivityClass;
+        Runnable runner401;
+        Runnable runner400;
+
+        public CallbackRequestGetProfileFromFacebookLogin(StoriesApp app, Login loginActivity, Class<MainActivity> mainActivityClass, Runnable vRunner401, Runnable vRunner400) {
+            this.app = app;
+            this.loginActivity = loginActivity;
+            this.mainActivityClass = mainActivityClass;
+            this.runner401 = vRunner401;
+            this.runner400 = vRunner400;
+        }
+
+        @Override
+        public void onResponse() {
+            try {
+                Log.d("HTTP RESPONSE: ", getHTTPResponse().toString());
+                JSONObject jsonResponse = getJSONResponse();
+                if (getHTTPResponse().code() == 200) {
+                    try{
+                        Log.d("RESPONSE: ", jsonResponse.toString());
+                        Log.d("USER",jsonResponse.get("firstname").toString());
+                        Log.d("USER",jsonResponse.get("lastname").toString());
+                        Log.d("USER",jsonResponse.get("age").toString());
+                        Log.d("USER",jsonResponse.get("gender").toString());
+                        Log.d("USER",jsonResponse.get("profilePic").toString());
+                    }catch (JSONException e){
+                        e.printStackTrace();
+                    }
+
+                    try{
+                        if (jsonResponse.get("lastname") != null){
+                            this.app.userLoggedIn.setLastName(jsonResponse.get("lastname").toString());
+                        }
+                    } catch (JSONException e){
+                        this.app.userLoggedIn.setLastName("Unknown");
+                    }
+                    try{
+                        if(jsonResponse.get("firstname") != null) {
+                            this.app.userLoggedIn.setFirstName(jsonResponse.get("firstname").toString());
+                        }
+                    } catch (JSONException e){
+                        this.app.userLoggedIn.setFirstName("Unknown");
+                    }
+                    this.app.userLoggedIn.setEmail(this.app.userLoggedIn.getEmail());
+                    try{
+                        if (jsonResponse.get("birthday") != null){
+                            this.app.userLoggedIn.setBirthday(jsonResponse.get("birthday").toString());
+                        }
+                    }catch (JSONException e){
+                        this.app.userLoggedIn.setBirthday("Unknown");
+                    }
+                    try{
+                        if (jsonResponse.get("gender") != null){
+                            this.app.userLoggedIn.setGender(jsonResponse.get("gender").toString());
+                        }
+                    }catch (JSONException e){
+                        this.app.userLoggedIn.setGender("Unknown");
+                    }
+                    try{
+                        if (jsonResponse.get("age") != null){
+                            this.app.userLoggedIn.setAge(jsonResponse.get("age").toString());
+                        }
+                    }catch (JSONException e){
+                        this.app.userLoggedIn.setAge("Unknown");
+                    }
+                    try{
+                        if (jsonResponse.get("profilePic") != null){
+                            this.app.userLoggedIn.setUrlProfilePicture(jsonResponse.get("profilePic").toString());
+                        }
+                    }catch (JSONException e){
+                        this.app.userLoggedIn.setUrlProfilePicture("");
+                    }
+                    this.app.userLoggedIn.LOG_USER();
+                } else if (getHTTPResponse().code() == 401){
+                    // Problem obtains the profile data
+                    new Handler(Looper.getMainLooper()).post(this.runner401);
+                } else if (getHTTPResponse().code() == 400){
+                    // The log in fails
+                    new Handler(Looper.getMainLooper()).post(this.runner400);
+                }
+                Log.d("Debug", "GO TO MAIN SCREEN");
+                Intent intent = new Intent(this.loginActivity, this.mainActivityClass);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                this.loginActivity.startActivity(intent);
                 //this.loginActivity.goMainScreen();
             } catch (Exception e) {
                 Log.e("TEST REQUEST CALLBACK", "Error");

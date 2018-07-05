@@ -80,7 +80,7 @@ public class AppServerRequest {
         try {
             json.put("username", email);
             json.put("fbToken", fbToken);
-            json.put("firstname",firstName);
+            json.put("fisrtname",firstName);
             json.put("lastname",lastName);
             json.put("gender",gender);
             json.put("age",age);
